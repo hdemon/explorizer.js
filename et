@@ -1,0 +1,33 @@
+[33mcommit d321e5840a04c6ce2a6c33240a537023276027e8[m
+Author: hdemon <hdemon@live.jp>
+Date:   Tue May 31 17:50:37 2011 +0900
+
+    deleted
+
+[33mcommit 7da8d4006cb9715bc6f7c52971130a932cdd0515[m
+Merge: e183b53 7f97de4
+Author: hdemon <hdemon@live.jp>
+Date:   Tue May 31 17:30:10 2011 +0900
+
+    Merge github.com:hdemon/jQuery.explorizer
+    
+    Conflicts:
+    	explorize.js
+
+[33mcommit e183b53ca9c450f1bc82b08f11274e2e4ee2182c[m
+Author: hdemon <hdemon@live.jp>
+Date:   Tue May 31 16:42:50 2011 +0900
+
+    proto
+
+[33mcommit dc2683223a215690f3a6bf44c30db1aa946fdded[m
+Author: hdemon <hdemon@live.jp>
+Date:   Tue May 31 15:25:27 2011 +0900
+
+    prototype
+
+[33mcommit 7f97de49bad0f70515875013d7d8fdc70ec95217[m
+Author: hdemon <hdemon@live.jp>
+Date:   Tue May 31 15:25:27 2011 +0900
+
+    prototype version
