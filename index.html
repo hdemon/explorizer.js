@@ -8,7 +8,7 @@
   <style type="text/css">
     body {
       margin-top: 1.0em;
-      background-color: #ffe9bd;
+      background-color: #fff;
       font-family: Helvetica, Arial, FreeSans, san-serif;
       color: #000000;
     }
@@ -21,12 +21,13 @@
     h1 a { text-decoration: none }
     h2 { font-size: 1.5em; color: #001642; }
     h3 { text-align: center; color: #001642; }
-    a { color: #001642; }
+    a { color: rgb(245, 82, 10); text-decoration: none; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
+    .download { float: right; margin-top: -20px; }
+    pre { background: #000; color: #fff; padding: 15px; border-radius: 10px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+    li { line-height: 1.5em; }
   </style>
 </head>
 
@@ -35,35 +36,38 @@
 
   <div id="container">
 
-    <div class="download">
-      <a href="http://github.com/hdemon/explorizer.js/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/hdemon/explorizer.js/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/hdemon/explorizer.js">explorizer.js</a>
-      <span class="small">by <a href="http://github.com/hdemon">hdemon</a></span></h1>
+    <h1>
+    	<a href="http://github.com/hdemon/explorizer.js">explorizer.js</a>
+      	<span class="small">by <a href="http://github.com/hdemon">hdemon</a></span>
+    </h1>
 
     <div class="description">
       explorer like GUI on browser
     </div>
 
-    <h2>Contact</h2>
-<p>Masami Yonehara (zeitdiebe@gmail.com)<br/>      </p>
-
-
     <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/hdemon/explorizer.js/zipball/master">zip</a> or
-      <a href="http://github.com/hdemon/explorizer.js/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/hdemon/explorizer.js</pre>
-    </p>
+		<div class="download">
+		  <a href="http://github.com/hdemon/explorizer.js/zipball/master">
+		    <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+		  <a href="http://github.com/hdemon/explorizer.js/tarball/master">
+		    <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+		</div>
+	    <p>
+	      You can download this project in either
+	      <a href="http://github.com/hdemon/explorizer.js/zipball/master">zip</a> or
+	      <a href="http://github.com/hdemon/explorizer.js/tarball/master">tar</a> formats.
+	    </p>
+	    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+	      by running:
+	      <pre>$ git clone git://github.com/hdemon/explorizer.js</pre>
+	    </p>
 
+    <h2>Contact</h2>
+    	<ul>
+			<li>zeitdiebe@gmail.com</li>
+			<li><a href="http://hdemon.net/">hdemon.net</a></li>
+			<li><a href="http://twitter.com/#!/h_demon/">twitter : h_demon</a></li>
+		</ul>
     <div class="footer">
       get the source code on GitHub : <a href="http://github.com/hdemon/explorizer.js">hdemon/explorizer.js</a>
     </div>
