@@ -1,1 +1,212 @@
-a
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+	<link href="explorize.css"
+	rel="stylesheet" type="text/css"/>
+  <title>hdemon/explorizer.js @ GitHub</title>
+
+  <style type="text/css">
+    body {
+      margin-top: 1.0em;
+      background-color: #fff;
+      font-family: Helvetica, Arial, FreeSans, san-serif;
+      color: #333;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+    h1 { font-size: 3.0em; color: #001642; margin: 15px 0 3px -10px; }
+    h1 .small { font-size: 0.4em; }
+    h1 a { text-decoration: none }
+    h2 { font-size: 1.5em; color: #333; margin: 15px 0 0 -10px; }
+    h3 { text-align: center; color: #333; margin: 15px 0 0 -10px; }
+    a { color: rgb(245, 82, 10); text-decoration: none; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 10px; }
+    .download { float: right; margin-top: -30px; }
+    pre { background: #000; color: #fff; padding: 15px; border-radius: 10px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+    li { line-height: 1.5em; }
+  </style>
+</head>
+
+<body>
+  <a href="http://github.com/hdemon/explorizer.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+	<div id="wrapper"></div>
+    <h1>
+    	<a href="http://github.com/hdemon/explorizer.js">explorizer.js</a>
+      	<span class="small">by <a href="http://github.com/hdemon">hdemon (Masami Yonehara)</a></span>
+    </h1>
+
+    <div class="description">
+      explorer like GUI on browser
+    </div>
+
+    <h2>What is it?</h2>
+    	<p>
+		It generates forms that provides "explorer" like functions such as
+    	</p>
+    	<ul>
+    		<li>
+    			selecting elements that is operated by dragging or clicking with Shift and Ctrl key.
+    		</li>
+    		<li>
+				dragging elements to another form.	
+    		</li>
+    		<li>
+				resizing form.	
+    		</li>
+    		<li>
+				switching focus.	
+    		</li>
+    		<li>
+				moving form by dragging.
+    		</li>
+    	</ul>
+    <h2>Conditions</h2>
+		<p>
+			It requires			
+		</p>		
+    		<li>
+				jQuery	
+    		</li>
+    		<li>
+				Recent browser (IE8 can't execute probably)
+    		</li>
+    <h2>Download</h2>
+		<div class="download">
+		  <a href="http://github.com/hdemon/explorizer.js/zipball/master">
+		    <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+		  <a href="http://github.com/hdemon/explorizer.js/tarball/master">
+		    <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+		</div>
+	    <p>
+	      You can download this project in either
+	      <a href="http://github.com/hdemon/explorizer.js/zipball/master">zip</a> or
+	      <a href="http://github.com/hdemon/explorizer.js/tarball/master">tar</a> formats.
+	    </p>
+	    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+	      by running:
+	      <pre>$ git clone git://github.com/hdemon/explorizer.js</pre>
+	    </p>
+
+    <h2>Contact</h2>
+    	<ul>
+			<li>zeitdiebe@gmail.com</li>
+			<li><a href="http://hdemon.net/">hdemon.net</a></li>
+			<li><a href="http://twitter.com/#!/h_demon/">twitter : h_demon</a></li>
+		</ul>
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/hdemon/explorizer.js">hdemon/explorizer.js</a>
+    </div>
+
+  </div>
+</body>
+
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/test/intro4div.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/common.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/eventController.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/resizer.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/selector.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/manipulator.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/aligner.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/titleBar.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/locator.js"></script>
+<script type="text/javascript" src="https://raw.github.com/hdemon/explorizer.js/master/src/core.js"></script>
+
+
+<script>
+"use strict";
+
+var	id	= 0,
+	$wrapper	= $("#wrapper"),
+	explorizer,
+	form = [];
+
+// new object creation
+explorizer = new hExplorizer.explorizer;
+
+form[ id ] =
+	explorizer
+		.set({  // parameters setting. Only "$wrapper" is required.
+			"$wrapper"	: $wrapper	})
+		.add(); // new window-form creation.
+		
+createBox( form[ id ], 10, 5, 100, 240);
+// When you manipulate DOM object in explorizer-form,
+// you must call "initialize" method explicitly for resetting events trigger. 
+explorizer.initialize();
+id++;
+
+form[ id ] = explorizer.add();
+createBox( form[ id ], 15, 2, 100, 240);
+explorizer.initialize();
+id++;
+
+
+// グラデーション付き要素作成
+// 以下の記事を参考にさせて頂きました。
+// http://www13.plala.or.jp/kymats/study/gazou/HSB/HSB.html
+function createBox($window, n, __h, _s, _b){
+    var	_h, r, g, b;
+    
+    for (var i=0; i< n; i++){
+        $window.append(
+            "<div " +
+            "class=\"block hd_ex_elem\" " +
+            ">" +
+            "</div>"
+        );
+        
+        _h	= 60*__h + i*(60/n);
+        
+        var max	= _b,
+       		min	= max-_s*max/255,
+        	hue	= _h;
+
+		if ( hue < 60 )  {
+			r = max;
+			g = min +hue* ( max-min ) /60;
+			b = min;
+		} else if ( hue < 120 )  {
+			r = max- ( hue - 60 ) * ( max-min ) /60;
+			g = max;
+			b = min;
+		} else if ( hue < 180 )  {
+			r = min;
+			g = max;
+			b = min + ( hue - 120 ) * ( max-min ) /60;
+		} else if ( hue < 240 )  {
+			r = min;
+			g = max- ( hue - 180 ) * ( max-min ) /60;
+			b = max;
+		} else if ( hue < 300 )  {
+			r = min + ( hue - 240 ) * ( max-min ) /60;
+			g = min;
+			b = max;
+		} else {
+			r = max;
+			g = min;
+			b = max- ( hue - 300 ) * ( max-min ) /60;
+		} 
+		
+		r	= Math.floor(r);
+		g	= Math.floor(g);
+		b	= Math.floor(b);
+		   
+        $(".block:last")
+        	.append("<p>" + i + "</p>")
+        	.css({ "background" : "rgb(" + [r, g, b].join(",") + ")" });
+    }
+};
+
+</script>
+
+
+</html>
