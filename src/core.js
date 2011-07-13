@@ -96,7 +96,11 @@ hExplorizer.windowForm = (function () {
 						"zIndex"		: 3,
 						"angleHandleSize": 25,
 						"end"			: fitCtSize.bind(this),
-						"start		"	: resetCtSize.bind(this),
+						"start"			: function(){
+							resetCtSize.bind(this)();
+							this.root.module.aligner
+								.setFocus( this.formId );
+						}.bind(this),
 						"wrapper"		: $("#wrapper")	})
 					.add( this.$ow );
 

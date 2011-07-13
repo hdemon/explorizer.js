@@ -13,7 +13,7 @@ hExplorizer.aligner = ( function () {
 
 		function getMaxZindex ( formObj ) {
         	var	zIndexArray	= [],
-	        	all$ow		= r.get$ow( "all" );
+	        	all$ow		= this.root.get$ow( "all" );
 	        
 			for ( var i = 0, l = all$ow.length; i < l; i++) {
             	zIndexArray.push( getZindex( all$ow.eq( i ) ) );
@@ -43,27 +43,25 @@ hExplorizer.aligner = ( function () {
 		}
 				
 		return {
-			setFocus : function ( formId, callback ) {
-				_this = this; r = this.root; 
-				
+			setFocus : function ( formId, callback ) {				
 	            var i, l, $ow_rest, prevZindex, zIndex = {};
 	            
 				var focused	= this.focusedFormId,
 					clicked	= formId,
-					$ow		= r.get$ow( formId );
+					$ow		= this.root.get$ow( formId );
 
 				// if selected window's id differs with previous active window...
 	            if ( clicked !== focused ) {
-					zIndex 		= getMaxZindex( r.form );
-					prevZindex	= getZindex( $ow );
+					zIndex 		= getMaxZindex.bind(this)( this.root.form );
+					prevZindex	= getZindex.bind(this)( $ow );
 
-					setZindex( $ow, zIndex.max + 1, "set" );
+					setZindex.bind(this)( $ow, zIndex.max + 1, "set" );
 
-					for ( var restId in r.form ) {
-						$ow_rest = r.get$ow( restId-0 );
+					for ( var restId in this.root.form ) {
+						$ow_rest = this.root.get$ow( restId-0 );
 						
-						if ( getZindex( $ow_rest ) > prevZindex ) {
-							setZindex( $ow_rest, -1, "assign" );
+						if ( getZindex.bind(this)( $ow_rest ) > prevZindex ) {
+							setZindex.bind(this)( $ow_rest, -1, "assign" );
 						}
 					}
 
