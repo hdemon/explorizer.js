@@ -1,12 +1,19 @@
+* {
+	-webkit-user-select:none;
+	-khtml-user-select:	none;
+	-moz-user-select:	none;
+	user-select: 		none;
+}
+
 .window{
 	background: #fff; 
 	border:1px solid #aaa; 
 }
 
 #wrapper {
-    height: 600px;
+    height: 800px;
     border: 1px solid #ccc;
-    margin: 0;
+    margin: 50px;
 	-webkit-user-select:none;
 	-khtml-user-select:	none;
 	-moz-user-select:	none;
@@ -15,7 +22,7 @@
 
 .hd_ex_ow {
 	position:	absolute;
-	top:		100px;
+	top:		10px;
 	background:	#fff;
     /*border:     1px dotted #ccc;*/
     border-bottom-right-radius: 10px 10px;
