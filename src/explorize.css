@@ -1,3 +1,10 @@
+* {
+	-webkit-user-select:none;
+	-khtml-user-select:	none;
+	-moz-user-select:	none;
+	user-select: 		none;
+}
+
 .window{
 	background: #fff; 
 	border:1px solid #aaa; 
