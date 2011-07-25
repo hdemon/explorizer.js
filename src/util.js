@@ -1,8 +1,9 @@
-(function(explorizer) {
+(function(hdemon) {
 
 var util;
 util = (function() {
 	var	ua	= navigator.userAgent;
+    
 	return {
 		browser	: {
 			"chrome"	: (ua.indexOf( "Chrome" ) 	!== -1),
@@ -11,6 +12,7 @@ util = (function() {
 			"opera"		: (ua.indexOf( "Opera" )	!== -1),
 			"safari"	: (ua.indexOf( "safari" )	!== -1)
 		},
+                
 		preventSelect : function () {
 			return (
 				hExplorizer.util.browser.ie || hExplorizer.util.browser.firefox
@@ -35,5 +37,5 @@ if ( typeof Function.prototype.bind === "undefined" ) {
 	};
 }
 
-explorizer.util = util;
-})(explorizer);
+hdemon.util = util;
+})(hdemon);

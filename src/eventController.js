@@ -1,197 +1,167 @@
-(function( hExplorizer ) {
+(function(exp){
 
-hExplorizer.eventController = (function () {
-	function NewEventController( root ) {
-		this.r	= root;
-	}
+var eventController;
+eventController = (function(core, util){
+    var handle,
+        $window = $(window),
+        callback,
+        mod;
+    
+    // method
+    function alignment ( formId ){
+        mod.aligner
+            .setFocus( formId, {
+                "changed" : function () { core.unselectAllElem() }
+            });
+    }
 
-	NewEventController.prototype = (function () {
-		var handle,
-			$window = $(window);
+    function mouseDown_elem ( event, formId, elemId ) {
+        alignment( formId );
 
-		function setEvent (
-			$allElem,
-			$allContent,
-			$allTitleBar,
-			$allRemoveBtn,
-			$allmaximizeBtn,
-			$allminimizeBtn
-		) {
-			var _this = this;
-			this.handle = this.handle || {
-				mouseDown_elem : function ( event ) {
-					var $this	= $( this ),
-						info	=  _this.r.parser( $this ),
-						formId	= info.formId,
-						part	= info.part,
-						elemId	= info.elemId;
+        var manipulate = function(){ mod.manipulator.manipulate( event, formId ); };
+        
+        mod.selector
+            .onElem( event.ctrlKey, event.shiftKey, formId, elemId, {
+                downOnSelected    : manipulate,
+                selectWithShift    : manipulate,
+                preselectByCtrl    : manipulate,
+                preselect         : manipulate
+            });
+    }
 
-					event.stopPropagation();
-					mouseDown_elem.bind(_this)( event, formId, elemId );
-				},
+    function mouseDown_content ( event, formId, part, elemId ) {
+        alignment( formId );
 
-				mouseDown_content : function ( event ) {
-					var $this	= $( this ),
-						info	=  _this.r.parser( $this ),
-						formId	= info.formId,
-						part	= info.part,
-						elemId	= info.elemId;
+        mod.selector
+            .onBack( event.pageX, event.pageY, formId );
+    }
 
-					event.stopPropagation();
-					mouseDown_content.bind(_this)( event, formId, part, elemId );
-				},
+    function mouseDown_titleBar ( event, formId, $ow ) {
+        alignment( formId );
 
-				mouseDown_titleBar : function ( event ) {
-					var	$this	= $( this ),
-						info	=  _this.r.parser( $this ),
-						formId	= info.formId,
-						$ow		=  _this.r.get$ow( formId );
+        mod.locator
+            .mouseDown( event.pageX, event.pageY, $ow );
+    }
 
-					event.stopPropagation();
-					mouseDown_titleBar.bind(_this)( event, formId, $ow );
-				},
+    function mouseUp_1 ( event ) {
+        $window
+           .unbind( "mousemove" );
+        mod.selector
+            .mouseUp();
 
-				mouseUp	: function ( event ) {
-					event.stopPropagation();
+        core.selectPropery();
+    }
 
-					mouseUp_1.bind(_this)( event );
+    // following event is only called for manipulation, 
+    // and is called after "mouseUp_1" function certainly.
+    function mouseUp_2 ( targetFormId, nextProcess ) {
+        mod.manipulator
+            .mouseUp( targetFormId, function ( baseFormId, targetFormId ) {
+                core.form[ baseFormId ]
+                    .numbering();
+                core.form[ targetFormId ]
+                    .numbering();
+                core.unselectAllElem();
+            });
+    }
+    
+    function mouseUp_3 () {
+        mod.manipulator.removeCursor();
+        callback();
+    }
 
-					if (  _this.m.manipulator.active ) {
-						// wait to acquire targetFormId ------
-						var timer = setInterval(function () { var tFormId =  _this.m.manipulator.targetFormId; 
-						if ( tFormId !== null ) { clearInterval(timer); 
-						// -----------------------------------
-						mouseUp_2.bind(_this)( tFormId );
-						mouseUp_3.bind(_this)( event );
-						 _this.initialize();
-						// logic ends-------------------------
-						}}, 1);
-						// -----------------------------------
-					}
-					
-					mouseUp_3.bind(_this)( event );
-				},
+    return {
+        set : function(args){
+            callback = args. callback || function(){};
+            return this;
+        },
+            
+        initialize : function () {
+            var self = this;
+            mod = core.mod;
+            handle = handle || {
+                mouseDown_elem : function ( event ) {
+                    var p  = util.parser($(this));
 
-				mouseUp_content	: function ( event ) {
-					 _this.m.manipulator.set_tFormId(  _this.r.parser( $(this) ).formId );
-				},
+                    event.stopPropagation();
+                    mouseDown_elem( event, p.formId, p.elemId );
+                },
 
-				keyDown : function ( event ) {
-					_this.m.manipulator.setCurStatus( event.ctrlKey );
-				},
+                mouseDown_content : function ( event ) {
+                    var p  = util.parser($(this));
 
-				keyUp : function ( event ) {
-					_this.m.manipulator.setCurStatus( event.ctrlKey );
-				}
-			};
-			
-			$allElem
-				.unbind	( "mousedown" )
-				.bind	( "mousedown",	this.handle.mouseDown_elem );
+                    event.stopPropagation();
+                    mouseDown_content( event, p.formId, p.part, p.elemId );
+                },
 
-			$allContent
-				.unbind	( "mousedown" )
-				.bind	( "mousedown",	this.handle.mouseDown_content )
-				.unbind	( "mouseup" )
-				.bind	( "mouseup",	this.handle.mouseUp_content );
+                mouseDown_titleBar : function ( event ) {
+                    var p  = util.parser($(this)),
+                        $ow= core.form[p.formId].get$ow();
 
-			$allTitleBar
-				.unbind	( "mousedown" )
-				.bind	( "mousedown",	this.handle.mouseDown_titleBar	);
+                    event.stopPropagation();
+                    mouseDown_titleBar( event, p.formId, $ow );
+                },
 
-			$window
-				.unbind	( "mouseup" )
-				.bind	( "mouseup",	this.handle.mouseUp );
-	
-			document.removeEventListener( "keydown",this.handle.keyDown, false );
-			document.addEventListener	( "keydown",this.handle.keyDown, false );
-			document.removeEventListener( "keyup",	this.handle.keyDown, false );
-			document.addEventListener	( "keyup",	this.handle.keyDown, false );
-		}
+                mouseUp    : function ( event ) {
+                    event.stopPropagation();
 
-		// method
-		function alignment ( formId ){
-			this.m.aligner
-				.setFocus( formId, {
-					"changed" : function () { this.r.unselectAllElem() }.bind(this)
-				});
-		}
+                    mouseUp_1( event );
 
-		function mouseDown_elem ( event, formId, elemId ) {
-			alignment.bind(this)( formId );
-	
-			var manipulate = function(){ this.m.manipulator.manipulate( event, formId ); };
-			
-			this.m.selector
-				.onElem( event.ctrlKey, event.shiftKey, formId, elemId, {
-					downOnSelected	: manipulate.bind(this),
-					selectWithShift	: manipulate.bind(this),
-					preselectByCtrl	: manipulate.bind(this),
-					preselect	 	: manipulate.bind(this)
-				});
-		}
+                    if ( mod.manipulator.active ) {
+                        // wait to acquire targetFormId ------
+                        var timer = setInterval(function () { var tFormId = mod.manipulator.targetFormId; 
+                        if ( tFormId !== null ) { clearInterval(timer); 
+                        // -----------------------------------
+                        mouseUp_2( tFormId );
+                        mouseUp_3( event );
+                        self.initialize();
+                        // logic ends-------------------------
+                        }}, 1);
+                        // -----------------------------------
+                    }
+                    
+                    mouseUp_3( event );
+                },
 
-		function mouseDown_content ( event, formId, part, elemId ) {
-			alignment.bind(this)( formId );
+                mouseUp_content : function ( event ) {
+                     mod.manipulator.set_tFormId( util.parser( $(this) ).formId );
+                },
 
-			this.m.selector
-				.onBack( event.pageX, event.pageY, formId );
-		}
+                keyDown : function ( event ) {
+                    mod.manipulator.setCurStatus( event.ctrlKey );
+                },
 
-		function mouseDown_titleBar ( event, formId, $ow ) {
-			alignment.bind(this)( formId );
+                keyUp : function ( event ) {
+                    mod.manipulator.setCurStatus( event.ctrlKey );
+                }
+            };
+            
+            core.get$elem("all")
+                .unbind  ( "mousedown" )
+                .bind    ( "mousedown", handle.mouseDown_elem );
 
-			this.m.locator
-				.mouseDown( event.pageX, event.pageY, $ow );
-		}
+            core.get$ct("all")
+                .unbind  ( "mousedown" )
+                .bind    ( "mousedown", handle.mouseDown_content )
+                
+                .unbind  ( "mouseup" )
+                .bind    ( "mouseup",   handle.mouseUp_content );
 
-		function mouseUp_1 ( event ) {
-	       	$window
-	       		.unbind( "mousemove" );
-			this.m.selector
-				.mouseUp();
+            core.get$titleBar("all")
+                .unbind  ( "mousedown" )
+                .bind    ( "mousedown", handle.mouseDown_titleBar );
 
-			this.r.selectPropery();
-		}
+            $window
+                .unbind  ( "mouseup" )
+                .bind    ( "mouseup",   handle.mouseUp );
 
-		// following event is only called for manipulation, 
-		// and is called after "mouseUp_1" function certainly.
-		function mouseUp_2 ( targetFormId, nextProcess ) {
-			this.m.manipulator
-				.mouseUp( targetFormId, function ( baseFormId, targetFormId ) {
-					this.r.form[ baseFormId ]
-						.numbering();
-					this.r.form[ targetFormId ]
-						.numbering();
-					this.r.unselectAllElem();
-				}.bind(this));
-		}
-		
-		function mouseUp_3 () {
-			this.m.manipulator.removeCursor();
-			this.callback();
-		}
+            document.removeEventListener( "keydown",    handle.keyDown, false );
+            document.addEventListener   ( "keydown",    handle.keyDown, false );
+            document.removeEventListener( "keyup",      handle.keyDown, false );
+            document.addEventListener   ( "keyup",      handle.keyDown, false );
+        }
+    }
+}(exp.core, exp.util));
 
-		return {
-			set : function(args){
-				this.callback = args. callback || function(){};
-				return this;
-			},
-				
-			initialize : function () {	
-				this.m = this.r.module;
-				setEvent.bind(this)(
-					this.r.get$elem( "all" ),
-					this.r.get$ct( "all" ),
-					this.r.module.titleBar.get$titleBar( "all" ),
-					this.r.module.titleBar.get$titleBar( "all" ),
-					this.r.module.titleBar.get$titleBar( "all" )
-				);
-			}
-	    }
-	}());
-
-	return	NewEventController;
-}());
-
-})( hExplorizer );
+exp.eventController = eventController;
+})(exp);

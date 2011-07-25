@@ -14,7 +14,11 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script type="text/javascript" src="intro4div.js"></script>
 
-<script type="text/javascript" src="../src/common.js"></script>
+<script type="text/javascript" src="../src/core.js"></script>
+<script type="text/javascript" src="../src/utils.js"></script>
+<script type="text/javascript" src="../src/eutils.js"></script>
+<script type="text/javascript" src="../src/intro.js"></script>
+<script type="text/javascript" src="../src/wform.js"></script>
 <script type="text/javascript" src="../src/eventController.js"></script>
 <script type="text/javascript" src="../src/resizer.js"></script>
 <script type="text/javascript" src="../src/selector.js"></script>
@@ -22,10 +26,11 @@
 <script type="text/javascript" src="../src/aligner.js"></script>
 <script type="text/javascript" src="../src/titlebar.js"></script>
 <script type="text/javascript" src="../src/locator.js"></script>
-<script type="text/javascript" src="../src/core.js"></script>
 
 <script>
 "use strict";
+console.log(hdemon);
+hdemon.explorizer = exp.core;
 
 var	id	= 0,
 	$wrapper	= $("#wrapper"),
@@ -33,7 +38,7 @@ var	id	= 0,
 	form = [];
 
 // new object creation
-explorizer = new hExplorizer.explorizer;
+explorizer = hdemon.explorizer;
 
 form[ id ] =
 	explorizer
@@ -62,7 +67,7 @@ function createBox($window, n, __h, _s, _b){
     for (var i=0; i< n; i++){
         $window.append(
             "<div " +
-            "class=\"block hd_ex_elem\" " +
+            "class=\"block hdex_elem\" " +
             ">" +
             "</div>"
         );

@@ -1,5 +1,7 @@
 ﻿"use strict";
 "use warnings";
 
-var hExplorizer = {};
-﻿
+var hdemon = hdemon || {},
+    exp = {};
+
+hdemon.explorizer = {};

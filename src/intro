@@ -2,5 +2,6 @@
 "use warnings";
 
 (function(window) {	
-var hExplorizer = {};
+var hdemon = hdemon || {},
+    exp = {};
 ﻿
