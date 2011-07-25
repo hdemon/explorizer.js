@@ -44,7 +44,7 @@ core = (function() {
             // optional --------
             // scroll                                 
             this.autoScroll    = args .autoScroll  ||
-               (hdemon.util.browser.ie || hdemon.util.browser.opera);
+               (exp.util.browser.ie || exp.util.browser.opera);
             this.scrollWeight  = args .scrollWeight|| 0.8;
 
             // individual parameter
@@ -55,10 +55,12 @@ core = (function() {
             this.minHeight     = (typeof args .minHeight  === "undefined")  ? 400   : args .minHeight;
             this.maxWidth      = (typeof args .maxWidth   === "undefined")  ? null  : args .maxWidth;
             this.maxHeight     = (typeof args .maxHeight  === "undefined")  ? null  : args .maxHeight;
+          
             this.tBarHeight    = (typeof args .tBarHeight === "undefined")  ? 30    : args .tBarHeight;
+            this.removeBtn     = (typeof args .removeBtn === "undefined")   ? true  : args .removeBtn;
 
-            this.removeBtn     = (typeof args .removeBtn === "undefined")   ? true  : false;
-            this.statusBar     = (typeof args .removeBtn === "undefined")   ? true  : false;
+            this.statusBar     = (typeof args .removeBtn === "undefined")   ? true  : args .statusBar
+            this.sBarHeight    = (typeof args .removeBtn === "undefined")   ? 50    : args .sBarHeight;
             
             // callback    
             this.callback    = {

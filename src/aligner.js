@@ -22,7 +22,7 @@ aligner = (function(core, util){
     }
 
     function setZindex ( $ow, val, method ) {
-        var    current    = $ow.css("z-index")-0;
+        var current = $ow.css("z-index")-0;
 
         switch ( method ) {
             case "assign":
@@ -54,7 +54,7 @@ aligner = (function(core, util){
                 setZindex.bind(this)( $ow, zIndex.max + 1, "set" );
 
                 for ( var restId in core.form ) {
-                    $ow_rest = core.get$ow( restId-0 );
+                    $ow_rest = core.form[restId-0].get$ow();
                     
                     if ( getZindex.bind(this)( $ow_rest ) > prevZindex ) {
                         setZindex.bind(this)( $ow_rest, -1, "assign" );

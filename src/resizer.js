@@ -13,44 +13,45 @@ resizer = (function(util){
         handle.top = {
             css : function () {
                 return {
-                    "top":        0    - this.handleWidth + this.topGap,
+                    "top":      0 - this.handleWidth + this.topGap,
                     "left":     0,
-                    "width":     this.width,
-                    "height":    this.handleWidth,
-                    "z-index":    this.zIndex,
-                    "cursor":    "n-resize"
+                    "width":    this.width,
+                    "height":   this.handleWidth,
+                    "z-index":  this.zIndex,
+                    "cursor":   "n-resize"
                 }
             },
-            mouseMove : function (event) {  this.$t.css( handle.top.range.bind(this)(event)); },
+            mouseMove : function (event) { this.$t.css( handle.top.range.bind(this)(event)); },
             mouseUp : function (event) {
                 this.$handle["left"]    .css({ "height": this.$t.height() - this.topGap });
-                this.$handle["right"]    .css({ "height": this.$t.height() - this.topGap });
+                this.$handle["right"]   .css({ "height": this.$t.height() - this.topGap });
             },
             range : function (event) {
-                var    _height, top, height, accTerm, attMax, attMin, divY, priority, nowTop;
+                var _height, top, height, accTerm, attMax, attMin, divY, priority, nowTop;
                 
-                nowTop        = event.pageY - this.divY_Hnd_top;
+                nowTop      = event.pageY - this.divY_Hnd_top;
                 divY        = this.prevTop - nowTop;
-                _height        = (this.height - this.borderWidthY) + divY;
-                accTerm        = (nowTop < this.wrap.top);
-                attMax        = (_height > this.limit.maxY);
-                attMin        = (_height < this.limit.minY);
-                priority    = ( (this.prevBottom - this.limit.maxY) > (this.wrap.top) )
+                _height     = (this.height - this.borderWidthY) + divY;
+                accTerm     = (nowTop + this.topGap < 0);
+                attMax      = (_height > this.limit.maxY);
+                attMin      = (_height < this.limit.minY);
+                priority    = ( (this.prevBottom - this.limit.maxY) > 0 )
 
-                if ( accTerm || attMax ){
-                    if ( priority ){
-                        top    = this.prevBottom - this.limit.maxY - this.divY_Hnd_top;
-                        height    = this.height - (top - this.prevTop) - this.borderWidthY;
-                    } else if ( nowTop < this.wrap.top ){
-                        top    = this.wrap.top;
-                        height    = this.prevBottom - this.wrap.top - this.borderWidthY;
+                if (accTerm || attMax){
+                    if (priority){
+                        top     = this.prevBottom - this.limit.maxY - this.divY_Hnd_top;
+                        height  = this.height - (top - this.prevTop) - this.borderWidthY;
+                    } else if (nowTop + this.topGap < 0){
+                        top     = 0 - this.topGap;
+                        height  = this.height - (top - this.prevTop) - this.borderWidthY;
+                //        height  = this.prevBottom - this.borderWidthY;
                     }
                 } else if ( attMin ){
-                    top        = this.prevBottom - this.limit.minY - this.borderWidthY;// - this.divY_Hnd_top;
-                    height    = this.limit.minY;
+                    top     = this.prevBottom - this.limit.minY - this.borderWidthY;// - this.divY_Hnd_top;
+                    height  = this.limit.minY;
                 } else {
-                    top        = nowTop;
-                    height    = this.height - (top - this.prevTop) - this.borderWidthY;
+                    top     = nowTop;
+                    height  = this.height - this.borderWidthY - (top - this.prevTop);
                 }
 
                 return { "top" : top, "height" : height };
@@ -245,29 +246,31 @@ resizer = (function(util){
         }
 
         function mouseDown_common ( x, y, angle ){
-            var w    = this.$wrapper,
-                wos    = w.offset();
+            var $w = this.$wrapper,
+                wos = $w.offset();
             
-            this.width            = this.$t.outerWidth(true);
-            this.height            = this.$t.outerHeight(true);            
-            this.prevTop        = this.$t.offset().top;
-            this.prevLeft        = this.$t.offset().left;
-            this.prevBottom    = this.prevTop + this.height;
-            this.prevRight        = this.prevLeft + this.width;
-            this.wrap    = {
+            this.width      = this.$t.outerWidth(true);
+            this.height     = this.$t.outerHeight(true);            
+            this.prevTop    = this.$t.position().top;
+            this.prevLeft   = this.$t.position().left;
+            this.prevBottom = this.prevTop + this.height;
+            this.prevRight  = this.prevLeft + this.width;
+            this.wrap = {
                 top     : wos.top,
-                bottom    : wos.top + w.height(),
-                left     : wos.left,
-                right    : wos.left + w.width()
+                bottom  : wos.top + $w.height(),
+                left    : wos.left,
+                right   : wos.left + $w.width(),
+                width   : $w.width(),
+                height  : $w.height()
             };
-            this.divX_Hnd_left        = x - this.prevLeft; // divasion from handle central axis. 
-            this.divX_Hnd_right        = x - this.prevLeft - this.width; // divasion from handle central axis. 
-            this.borderWidthX        = (    parseInt(this.$t.css("border-left-width")) +
-                                        parseInt(this.$t.css("border-right-width"))    );
-            this.divY_Hnd_top        = y - this.prevTop; // divasion from handle central axis. 
-            this.divY_Hnd_bottom    = y - this.prevBottom; // divasion from handle central axis. 
-            this.borderWidthY        = (    parseInt(this.$t.css("border-top-width")) +
-                                        parseInt(this.$t.css("border-bottom-width")) );
+            this.divX_Hnd_left  = x - this.prevLeft; // divasion from handle central axis. 
+            this.divX_Hnd_right = x - this.prevLeft - this.width; // divasion from handle central axis. 
+            this.borderWidthX   = ( parseInt(this.$t.css("border-left-width")) +
+                                    parseInt(this.$t.css("border-right-width")) );
+            this.divY_Hnd_top   = y - this.prevTop; // divasion from handle central axis. 
+            this.divY_Hnd_bottom = y - this.prevBottom; // divasion from handle central axis. 
+            this.borderWidthY   = ( parseInt(this.$t.css("border-top-width")) +
+                                    parseInt(this.$t.css("border-bottom-width")) );
 
             this.event.mouseMove[ angle ] = function (event) {
                 handle[ angle ].mouseMove.bind(this)(event);

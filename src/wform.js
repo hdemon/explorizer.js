@@ -90,6 +90,7 @@ windowForm = (function(core, util) {
                         "leftGap"       : 5,
                         "zIndex"        : 3,
                         "angleHandleSize": 25,
+                        "maxY" :  600 ,
                         "end"           : function() { fitCtSize(this.$ct, this.$iw) }.bind(this),
                         "start"         : function() {
                             resetCtSize(this.$ct);
