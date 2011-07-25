@@ -1,10 +1,10 @@
-(function(exp){
+(function(exp) {
 
 var resizer;
-resizer = (function(util){
-    var NewResizer = function(){};
+resizer = (function(util) {
+    var NewResizer = function() {};
 
-    NewResizer.prototype = (function(){ 
+    NewResizer.prototype = (function() { 
         var angleStr    = "top bottom left right top_left top_right bottom_left bottom_right",
             angleArray    = angleStr    .split(" "),
             protoMember = {},
@@ -37,16 +37,15 @@ resizer = (function(util){
                 attMin      = (_height < this.limit.minY);
                 priority    = ( (this.prevBottom - this.limit.maxY) > 0 )
 
-                if (accTerm || attMax){
-                    if (priority){
-                        top     = this.prevBottom - this.limit.maxY - this.divY_Hnd_top;
-                        height  = this.height - (top - this.prevTop) - this.borderWidthY;
-                    } else if (nowTop + this.topGap < 0){
+                if (accTerm || attMax) {
+                    if (priority) {
+                        top     = this.prevBottom - this.limit.maxY;// - this.divY_Hnd_top;
+                        height  = this.height - this.borderWidthY - (top - this.prevTop);
+                    } else if (nowTop + this.topGap < 0) {
                         top     = 0 - this.topGap;
-                        height  = this.height - (top - this.prevTop) - this.borderWidthY;
-                //        height  = this.prevBottom - this.borderWidthY;
+                        height  = this.height - this.borderWidthY - (top - this.prevTop);
                     }
-                } else if ( attMin ){
+                } else if (attMin) {
                     top     = this.prevBottom - this.limit.minY - this.borderWidthY;// - this.divY_Hnd_top;
                     height  = this.limit.minY;
                 } else {
@@ -72,27 +71,22 @@ resizer = (function(util){
             mouseMove : function (event) { this.$t.css( handle.bottom.range.bind(this)(event)); },
             mouseUp : handle.top.mouseUp,
             range : function (event) {
-                var    _height, top, height, accTerm, attMax, attMin, divY, priority, nowTop;
+                var _height, top, height, accTerm, attMax, attMin, divY, priority, nowTop;
 
-                nowTop        = event.pageY - this.divY_Hnd_bottom;
+                nowTop      = event.pageY - this.divY_Hnd_bottom;
                 divY        = nowTop - this.prevBottom;
-                _height        = ( this.height - this.borderWidthY ) + divY;
-                accTerm        = (nowTop > this.wrap.bottom);
-                attMax        = (_height > this.limit.maxY);
-                attMin        = (_height < this.limit.minY);
-                priority    = ( (this.prevTop + this.limit.maxY) < (this.wrap.bottom) );
+                _height     = (this.height - this.borderWidthY) + divY;
+                accTerm     = (nowTop > this.wrap.height);
+                attMax      = (_height > this.limit.maxY);
+                attMin      = (_height < this.limit.minY);
+                priority    = ( (this.prevTop + this.limit.maxY) < this.wrap.height );
 
-                if ( accTerm || attMax ){
-                    if ( priority ){
-                        height    = this.limit.maxY;
-                    } else {
-                        height    = this.wrap.bottom - this.prevTop;
-                    }
-                } else if ( attMin ){
-                    height    = this.limit.minY;
-                } else {
-                    height    = _height;
-                }
+                if (accTerm || attMax) {
+                    if (priority)   height = this.limit.maxY;
+                    else            height = this.wrap.height - this.prevTop;
+                } else 
+                    if (attMin)     height = this.limit.minY;
+                    else            height = _height;
 
                 return { "height" : height };
             }
@@ -125,15 +119,15 @@ resizer = (function(util){
                 attMin        = (_width < this.limit.minX);
                 priority    = ( (this.prevRight - this.limit.maxX) > (this.wrap.left) )
 
-                if ( accTerm || attMax ){
-                    if ( priority ){
+                if ( accTerm || attMax ) {
+                    if ( priority ) {
                         left    = this.prevRight - this.limit.maxX - this.divX_Hnd_left;
                         width    = this.width - (left - this.prevLeft) - this.borderWidthX;
-                    } else if ( nowLeft < this.wrap.left ){
+                    } else if ( nowLeft < this.wrap.left ) {
                         left    = this.wrap.left;
                         width    = this.prevRight - this.wrap.left - this.borderWidthX;
                     }
-                } else if ( attMin ){
+                } else if ( attMin ) {
                     left    = this.prevRight - this.limit.minX - this.borderWidthX;// - this.divY_Hnd_top;
                     width    = this.limit.minX;
                 } else {
@@ -169,13 +163,13 @@ resizer = (function(util){
                 attMin        = (_width < this.limit.minX);
                 priority    = ( (this.prevLeft + this.limit.maxX) < (this.wrap.right) );
 
-                if ( accTerm || attMax ){
-                    if ( priority ){
+                if ( accTerm || attMax ) {
+                    if ( priority ) {
                         width    = this.limit.maxX;
                     } else {
                         width    = this.wrap.right - this.prevLeft;
                     }
-                } else if ( attMin ){
+                } else if ( attMin ) {
                     width    = this.limit.minX;
                 } else {
                     width    = _width;
@@ -245,7 +239,7 @@ resizer = (function(util){
             mouseUp : handle.top_left.mouseUp
         }
 
-        function mouseDown_common ( x, y, angle ){
+        function mouseDown_common ( x, y, angle ) {
             var $w = this.$wrapper,
                 wos = $w.offset();
             
@@ -343,14 +337,14 @@ resizer = (function(util){
                 };
 
                 this.callback    = {
-                    start    : args .start    || function(){},
-                    end        : args .end        || function(){}
+                    start    : args .start    || function() {},
+                    end        : args .end        || function() {}
                 };
                 
                 return    this;
             },
 
-            add : function( $target ){
+            add : function( $target ) {
                 this.$t    = $target;
                 this.$handle = {};
                 this.event = { mouseDown:{}, mouseMove:{}, mouseUp:{} };
@@ -358,7 +352,7 @@ resizer = (function(util){
                 this.width    = this.$t.outerWidth(true);
                 this.height    = this.$t.outerHeight(true);
 
-                for ( var i=0, a=this.angle.split(" "), l=a.length; i<l; i++ ){
+                for ( var i=0, a=this.angle.split(" "), l=a.length; i<l; i++ ) {
                     var angle = String( a[i] );
                     this.$handle[ angle ] = createHandleDiv.bind(this)( angle );
                     setCss.bind(this)( angle );
