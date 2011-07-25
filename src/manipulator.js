@@ -78,8 +78,7 @@ manipulator = (function(core, util){
         manipulate : function (event, formId) {
             baseFormId = formId;
             elemNum =
-                core.get$elem()
-                    .filter("." + core.lb.selected +",." + core.lb.preselect)
+                core.get$elem("selected", true)
                     .size();
 
             util.setTrigDelayer(event.pageX, event.pageY, 18, callback);
@@ -93,7 +92,7 @@ manipulator = (function(core, util){
         },
 
         mouseUp : function (targetFormId, callback) {
-            var $elem = $("." + core.lb.selected);
+            var $elem = core.get$elem("selected", true);
 
             if (active) {
                 if (mode === "copy") copyElements_($elem, targetFormId);

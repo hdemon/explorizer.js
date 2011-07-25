@@ -44,25 +44,29 @@ core = (function() {
             // optional --------
             // scroll                                 
             this.autoScroll    = args .autoScroll  ||
-               (hdemon.util.browser.ie || hdemon.util.browser.opera );
+               (hdemon.util.browser.ie || hdemon.util.browser.opera);
             this.scrollWeight  = args .scrollWeight|| 0.8;
 
             // individual parameter
-            // css status
-            this.width         = (typeof args .width      === "undefined")? 300 : args .width;    // initial value
-            this.height        = (typeof args .height     === "undefined")? 400 : args .height;    // do.
-            this.minWidth      = (typeof args .minWidth   === "undefined")? 300 : args .minWidth;
-            this.minHeight     = (typeof args .minHeight  === "undefined")? 400 : args .minHeight;
-            this.maxWidth      = (typeof args .maxWidth   === "undefined")? null: args .maxWidth;
-            this.maxHeight     = (typeof args .maxHeight  === "undefined")? null: args .maxHeight;
+            // style
+            this.width         = (typeof args .width      === "undefined")  ? 300   : args .width;    // initial value
+            this.height        = (typeof args .height     === "undefined")  ? 400   : args .height;    // do.
+            this.minWidth      = (typeof args .minWidth   === "undefined")  ? 300   : args .minWidth;
+            this.minHeight     = (typeof args .minHeight  === "undefined")  ? 400   : args .minHeight;
+            this.maxWidth      = (typeof args .maxWidth   === "undefined")  ? null  : args .maxWidth;
+            this.maxHeight     = (typeof args .maxHeight  === "undefined")  ? null  : args .maxHeight;
+            this.tBarHeight    = (typeof args .tBarHeight === "undefined")  ? 30    : args .tBarHeight;
 
-            this.tBarHeight    = (typeof args .tBarHeight === "undefined")? 30  : args .tBarHeight;
-
+            this.removeBtn     = (typeof args .removeBtn === "undefined")   ? true  : false;
+            this.statusBar     = (typeof args .removeBtn === "undefined")   ? true  : false;
+            
+            // callback    
             this.callback    = {
-                mouseDown_pre   : args .mouseDown_pre   || function () {},
-                mouseDown_after : args .mouseDown_after || function () {},
-                mouseUp_pre     : args .mouseUp_pre     || function () {},
-                mouseUp_after   : args .mouseUp_after   || function () {}
+                manipulated     : args .manipulated     || function () {},
+                selected        : args .selected        || function () {},
+                formRemoved     : args .formRemoved     || function () {},
+                formAdded       : args .formAdded       || function () {},
+                onElement       : args .formAdded       || function () {}          
             };
 
             return this;
@@ -77,7 +81,6 @@ core = (function() {
             // create form root. And the content element object relocate
             // under "form.rootObj". $iw(inner wrapper) and $ow(outer wrapper)
             // locate there too.
-            console.log(exp);
             var form    = new exp.windowForm(this),
                 id      = form.getFormId();
             this.form[ id ] = form;
@@ -100,11 +103,7 @@ core = (function() {
                     "callback" : this.initialize.bind(this)
                 })
                     .initialize();
-
-            // it enables window-form to move by dragging. 
-            //        this.mod.locator
-            //            .add();
-                             
+                                                 
                 this.id++;
                 return _form.$ct;
             },
@@ -119,19 +118,8 @@ core = (function() {
                 form .initialize();
             }
         },
-        /*
-        get$ow : function(formId) {
-            if(arguments[0] === "all" || arguments.length === 0) {
-                return $( "." + this.pref + this.lb.outrWrap );
-            } else {
-                return $( "#" + this.pref + formId + "_" + this.lb.outrWrap );
-            }
-        },
-
-        get$iw : function(formId) {
-            return $( "#" + this.pref + formId + "_" + this.lb.innrWrap );
-        },
-        */
+            
+        get$wrapper : function() { return this.$wrapper; },
         
         get$ow : function(formId) {
             if (arguments[0] === "all" || arguments.length === 0)
@@ -159,6 +147,8 @@ core = (function() {
                 return $( "." + this.pref + this.lb.elem );
             else if (arguments.length === 1)
                 return this.form[formId].get$elem();
+            else if (arguments[0] === "selected")
+                return $( "." + this.lb.selected + ((arguments[1]) ? ", ." + this.lb.preselect : "") )
             else
                 return this.form[formId].get$elem(elemId);
         },
