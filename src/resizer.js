@@ -6,7 +6,7 @@ resizer = (function(util) {
 
     NewResizer.prototype = (function() { 
         var angleStr    = "top bottom left right top_left top_right bottom_left bottom_right",
-            angleArray    = angleStr    .split(" "),
+            angleArray  = angleStr .split(" "),
             protoMember = {},
             handle = {};
                 
@@ -27,30 +27,28 @@ resizer = (function(util) {
                 this.$handle["right"]   .css({ "height": this.$t.height() - this.topGap });
             },
             range : function (event) {
-                var _height, top, height, accTerm, attMax, attMin, divY, priority, nowTop;
-                
-                nowTop      = event.pageY - this.divY_Hnd_top;
-                divY        = this.prevTop - nowTop;
-                _height     = (this.height - this.borderWidthY) + divY;
-                accTerm     = (nowTop + this.topGap < 0);
-                attMax      = (_height > this.limit.maxY);
-                attMin      = (_height < this.limit.minY);
-                priority    = ( (this.prevBottom - this.limit.maxY) > 0 )
+                var nowTop      = event.pageY - this.divY_Hnd_top,
+                    divY        = this.prevTop - nowTop,
+                    _height     = (this.height - this.borderHeight) + divY,
+                    accTerm     = (nowTop + this.topGap < 0),
+                    attMax      = (_height > this.limit.maxY),
+                    attMin      = (_height < this.limit.minY),
+                    priority    = ( (this.prevBottom - this.limit.maxY) > 0 );
 
                 if (accTerm || attMax) {
                     if (priority) {
                         top     = this.prevBottom - this.limit.maxY;// - this.divY_Hnd_top;
-                        height  = this.height - this.borderWidthY - (top - this.prevTop);
+                        height  = this.height - this.borderHeight - (top - this.prevTop);
                     } else if (nowTop + this.topGap < 0) {
                         top     = 0 - this.topGap;
-                        height  = this.height - this.borderWidthY - (top - this.prevTop);
+                        height  = this.height - this.borderHeight - (top - this.prevTop);
                     }
                 } else if (attMin) {
-                    top     = this.prevBottom - this.limit.minY - this.borderWidthY;// - this.divY_Hnd_top;
+                    top     = this.prevBottom - this.limit.minY - this.borderHeight;// - this.divY_Hnd_top;
                     height  = this.limit.minY;
                 } else {
                     top     = nowTop;
-                    height  = this.height - this.borderWidthY - (top - this.prevTop);
+                    height  = this.height - this.borderHeight - (top - this.prevTop);
                 }
 
                 return { "top" : top, "height" : height };
@@ -60,26 +58,24 @@ resizer = (function(util) {
         handle.bottom = {
             css : function () {
                 return {
-                    "bottom":    0    - this.handleWidth + this.bottomGap,
+                    "bottom":   0 - this.handleWidth + this.bottomGap,
                     "left":     0,
-                    "width":     this.width,
-                    "height":    this.handleWidth,
-                    "cursor":    "s-resize",
-                    "z-index":    this.zIndex
+                    "width":    this.width,
+                    "height":   this.handleWidth,
+                    "cursor":   "s-resize",
+                    "z-index":  this.zIndex
                 }
             },
             mouseMove : function (event) { this.$t.css( handle.bottom.range.bind(this)(event)); },
             mouseUp : handle.top.mouseUp,
             range : function (event) {
-                var _height, top, height, accTerm, attMax, attMin, divY, priority, nowTop;
-
-                nowTop      = event.pageY - this.divY_Hnd_bottom;
-                divY        = nowTop - this.prevBottom;
-                _height     = (this.height - this.borderWidthY) + divY;
-                accTerm     = (nowTop > this.wrap.height);
-                attMax      = (_height > this.limit.maxY);
-                attMin      = (_height < this.limit.minY);
-                priority    = ( (this.prevTop + this.limit.maxY) < this.wrap.height );
+                var nowTop      = event.pageY - this.divY_Hnd_bottom,
+                    divY        = nowTop - this.prevBottom,
+                    _height     = (this.height - this.borderHeight) + divY,
+                    accTerm     = (nowTop > this.wrap.height),
+                    attMax      = (_height > this.limit.maxY),
+                    attMin      = (_height < this.limit.minY),
+                    priority    = ( (this.prevTop + this.limit.maxY) < this.wrap.height );
 
                 if (accTerm || attMax) {
                     if (priority)   height = this.limit.maxY;
@@ -95,44 +91,42 @@ resizer = (function(util) {
         handle.left = {
             css : function () {
                 return {
-                    "top":        0 + this.topGap,
+                    "top":      0 + this.topGap,
                     "left":     0 - this.handleWidth + this.leftGap,
-                    "width":     this.handleWidth,
-                    "height":    this.height - this.topGap,
-                    "cursor":    "e-resize",
-                    "z-index":    this.zIndex
+                    "width":    this.handleWidth,
+                    "height":   this.height - this.topGap,
+                    "cursor":   "e-resize",
+                    "z-index":  this.zIndex
                 }
             },
             mouseMove : function (event) { this.$t.css( handle.left.range.bind(this)(event)); },
             mouseUp : function (event) {
-                this.$handle["top"]        .css({ "width" : this.$t.width() });
-                this.$handle["bottom"]    .css({ "width" : this.$t.width() });
+                this.$handle["top"]     .css({ "width" : this.$t.width() });
+                this.$handle["bottom"]  .css({ "width" : this.$t.width() });
             },
             range : function (event) {
-                var    _width, left, width, accTerm, attMax, attMin, divX, priority, nowLeft;
+                var nowLeft     = event.pageX - this.divX_Hnd_left,
+                    divX        = this.prevLeft - nowLeft,
+                    _width      = (this.width - this.borderWidth) + divX,
+                    accTerm     = (nowLeft + this.leftGap < 0),
+                    attMax      = (_width > this.limit.maxX),
+                    attMin      = (_width < this.limit.minX),
+                    priority    = ( (this.prevRight - this.limit.maxX) > 0 );
 
-                nowLeft        = event.pageX - this.divX_Hnd_left;
-                divX        = this.prevLeft - nowLeft;
-                _width        = (this.width - this.borderWidthX) + divX;
-                accTerm        = (nowLeft < this.wrap.left);
-                attMax        = (_width > this.limit.maxX);
-                attMin        = (_width < this.limit.minX);
-                priority    = ( (this.prevRight - this.limit.maxX) > (this.wrap.left) )
-
-                if ( accTerm || attMax ) {
-                    if ( priority ) {
-                        left    = this.prevRight - this.limit.maxX - this.divX_Hnd_left;
-                        width    = this.width - (left - this.prevLeft) - this.borderWidthX;
-                    } else if ( nowLeft < this.wrap.left ) {
-                        left    = this.wrap.left;
-                        width    = this.prevRight - this.wrap.left - this.borderWidthX;
+                if (accTerm || attMax) {
+                    if (priority) {
+                        left    = this.prevRight - this.limit.maxX;// - this.divX_Hnd_left;
+                        width   = this.width - this.borderWidth - (left - this.prevLeft);
+                    } else if (nowLeft + this.leftGap < 0) {
+                        left    = 0 - this.leftGap;
+                        width   = this.width - this.borderWidth - (left - this.prevLeft);
                     }
-                } else if ( attMin ) {
-                    left    = this.prevRight - this.limit.minX - this.borderWidthX;// - this.divY_Hnd_top;
-                    width    = this.limit.minX;
+                } else if (attMin) {
+                    left    = this.prevRight - this.limit.minX - this.borderWidth;// - this.divX_Hnd_left;
+                    width   = this.limit.minX;
                 } else {
                     left    = nowLeft;
-                    width    = this.width - (left - this.prevLeft) - this.borderWidthX;
+                    width   = this.width - this.borderWidth - (left - this.prevLeft);
                 }
 
                 return { "left" : left, "width" : width };
@@ -142,38 +136,31 @@ resizer = (function(util) {
         handle.right = {
             css : function () {
                 return {
-                    "top":        0 + this.topGap,
+                    "top":      0 + this.topGap,
                     "right":    0 - this.handleWidth + this.rightGap,
-                    "width":     this.handleWidth,
-                    "height":    this.height - this.topGap,
-                    "cursor":    "w-resize",
-                    "z-index":    this.zIndex
+                    "width":    this.handleWidth,
+                    "height":   this.height - this.topGap,
+                    "cursor":   "w-resize",
+                    "z-index":  this.zIndex
                 }
             },
             mouseMove : function (event) { this.$t.css( handle.right.range.bind(this)(event)); },
             mouseUp : handle.left.mouseUp,
             range : function (event) {
-                var    _width, left, width, accTerm, attMax, attMin, divX, priority, nowLeft;
+                var nowLeft     = event.pageX - this.divX_Hnd_right,
+                    divX        = nowLeft - this.prevRight,
+                    _width      = (this.width - this.borderHeight) + divX,
+                    accTerm     = (nowLeft > this.wrap.width),
+                    attMax      = (_width > this.limit.maxX),
+                    attMin      = (_width < this.limit.minX),
+                    priority    = ( (this.prevLeft + this.limit.maxX) < this.wrap.width );
 
-                nowLeft        = event.pageX - this.divX_Hnd_right;
-                divX        = nowLeft - this.prevRight;
-                _width        = ( this.width - this.borderWidthX ) + divX;
-                accTerm        = (nowLeft > this.wrap.right);
-                attMax        = (_width > this.limit.maxX);
-                attMin        = (_width < this.limit.minX);
-                priority    = ( (this.prevLeft + this.limit.maxX) < (this.wrap.right) );
-
-                if ( accTerm || attMax ) {
-                    if ( priority ) {
-                        width    = this.limit.maxX;
-                    } else {
-                        width    = this.wrap.right - this.prevLeft;
-                    }
-                } else if ( attMin ) {
-                    width    = this.limit.minX;
-                } else {
-                    width    = _width;
-                }
+                if (accTerm || attMax) {
+                    if (priority)   width = this.limit.maxX;
+                    else            width = this.wrap.width - this.prevLeft;
+                } else 
+                    if (attMin)     width = this.limit.minX;
+                    else            width = _width;
 
                 return { "width" : width };
             }
@@ -182,60 +169,75 @@ resizer = (function(util) {
         handle.top_left = {
             css : function () {
                 return {
-                    "top":        0    - this.handleWidth + this.topGap,
-                    "left":     0    - this.handleWidth + this.leftGap,
-                    "width":     this.angleHandleSize,
-                    "height":    this.angleHandleSize,
-                    "cursor":    "nw-resize",
-                    "z-index":    this.zIndex + 1
+                    "top":      0 - this.handleWidth + this.topGap,
+                    "left":     0 - this.handleWidth + this.leftGap,
+                    "width":    this.angleHandleSize,
+                    "height":   this.angleHandleSize,
+                    "cursor":   "nw-resize",
+                    "z-index":  this.zIndex + 1
                 }
             },
-            mouseMove : function (event) { handle.top.mouseMove.bind(this)(event);  handle.left.mouseMove.bind(this)(event); },
-            mouseUp : function (event) { handle.top.mouseUp.bind(this)(event);  handle.left.mouseUp.bind(this)(event); }
+            mouseMove : function (event) { 
+                handle.top.mouseMove.bind(this)(event);  
+                handle.left.mouseMove.bind(this)(event); 
+            },
+            mouseUp : function (event) { 
+                handle.top.mouseUp.bind(this)(event);  
+                handle.left.mouseUp.bind(this)(event); 
+            }
         },
 
         handle.top_right = {
             css : function () {
                 return {
-                    "top":        0    - this.handleWidth + this.topGap,
-                    "right":    0    - this.handleWidth + this.rightGap,
-                    "width":     this.angleHandleSize,
-                    "height":    this.angleHandleSize,
-                    "cursor":    "ne-resize",
-                    "z-index":    this.zIndex + 1
+                    "top":      0 - this.handleWidth + this.topGap,
+                    "right":    0 - this.handleWidth + this.rightGap,
+                    "width":    this.angleHandleSize,
+                    "height":   this.angleHandleSize,
+                    "cursor":   "ne-resize",
+                    "z-index":  this.zIndex + 1
                 }
             },
-            mouseMove : function (event) { handle.top.mouseMove.bind(this)(event);  handle.right.mouseMove.bind(this)(event); },
+            mouseMove : function (event) { 
+                handle.top.mouseMove.bind(this)(event);  
+                handle.right.mouseMove.bind(this)(event); 
+            },
             mouseUp : handle.top_left.mouseUp
         },
 
         handle.bottom_left = {
             css : function () {
                 return {
-                    "bottom":    0    - this.handleWidth + this.bottomGap,
-                    "left":     0    - this.handleWidth + this.leftGap,
-                    "width":     this.angleHandleSize,
-                    "height":    this.angleHandleSize,
-                    "cursor":    "sw-resize",
-                    "z-index":    this.zIndex + 1
+                    "bottom":   0 - this.handleWidth + this.bottomGap,
+                    "left":     0 - this.handleWidth + this.leftGap,
+                    "width":    this.angleHandleSize,
+                    "height":   this.angleHandleSize,
+                    "cursor":   "sw-resize",
+                    "z-index":  this.zIndex + 1
                 }
             },
-            mouseMove : function (event) { handle.bottom.mouseMove.bind(this)(event);  handle.left.mouseMove.bind(this)(event); },
+            mouseMove : function (event) { 
+                handle.bottom.mouseMove.bind(this)(event);  
+                handle.left.mouseMove.bind(this)(event); 
+            },
             mouseUp : handle.top_left.mouseUp
         },
 
         handle.bottom_right = {
             css : function () {
                 return {
-                    "bottom":    0    - this.handleWidth + this.bottomGap,
-                    "right":    0    - this.handleWidth + this.rightGap,
-                    "width":     this.angleHandleSize,
-                    "height":    this.angleHandleSize,
-                    "cursor":    "se-resize",
-                    "z-index":    this.zIndex + 1
+                    "bottom":   0 - this.handleWidth + this.bottomGap,
+                    "right":    0 - this.handleWidth + this.rightGap,
+                    "width":    this.angleHandleSize,
+                    "height":   this.angleHandleSize,
+                    "cursor":   "se-resize",
+                    "z-index":  this.zIndex + 1
                 }
             },
-            mouseMove : function (event) { handle.bottom.mouseMove.bind(this)(event);  handle.right.mouseMove.bind(this)(event); },
+            mouseMove : function (event) {
+                handle.bottom.mouseMove.bind(this)(event);
+                handle.right.mouseMove.bind(this)(event);
+            },
             mouseUp : handle.top_left.mouseUp
         }
 
@@ -259,11 +261,11 @@ resizer = (function(util) {
             };
             this.divX_Hnd_left  = x - this.prevLeft; // divasion from handle central axis. 
             this.divX_Hnd_right = x - this.prevLeft - this.width; // divasion from handle central axis. 
-            this.borderWidthX   = ( parseInt(this.$t.css("border-left-width")) +
+            this.borderWidth   = ( parseInt(this.$t.css("border-left-width")) +
                                     parseInt(this.$t.css("border-right-width")) );
             this.divY_Hnd_top   = y - this.prevTop; // divasion from handle central axis. 
             this.divY_Hnd_bottom = y - this.prevBottom; // divasion from handle central axis. 
-            this.borderWidthY   = ( parseInt(this.$t.css("border-top-width")) +
+            this.borderHeight   = ( parseInt(this.$t.css("border-top-width")) +
                                     parseInt(this.$t.css("border-bottom-width")) );
 
             this.event.mouseMove[ angle ] = function (event) {
