@@ -5,7 +5,9 @@ eventController = (function(core, util){
     var handle,
         $window = $(window),
         callback,
-        mod;
+        mod,
+        targetFormId,
+        baseFormId;
     
     // method
     function alignment ( formId ){
@@ -16,9 +18,10 @@ eventController = (function(core, util){
     }
 
     function mouseDown_elem ( event, formId, elemId ) {
-        alignment( formId );
+        alignment(formId);
+        baseFormId = formId;
 
-        var manipulate = function(){ mod.manipulator.manipulate( event, formId ); };
+        var manipulate = function(){ mod.manipulator.manipulate( event, baseFormId ); };
         
         mod.selector
             .onElem( event.ctrlKey, event.shiftKey, formId, elemId, {
@@ -54,9 +57,9 @@ eventController = (function(core, util){
 
     // following event is only called for manipulation, 
     // and is called after "mouseUp_1" function certainly.
-    function mouseUp_2 ( targetFormId, nextProcess ) {
+    function mouseUp_2 (nextProcess) {
         mod.manipulator
-            .mouseUp( targetFormId, function ( baseFormId, targetFormId ) {
+            .mouseUp( targetFormId, function() {
                 core.form[ baseFormId ]
                     .numbering();
                 core.form[ targetFormId ]
@@ -79,6 +82,8 @@ eventController = (function(core, util){
         initialize : function () {
             var self = this;
             mod = core.mod;
+            targetFormId = null;
+            
             handle = handle || {
                 mouseDown_elem : function ( event ) {
                     var p  = util.parser($(this));
@@ -107,24 +112,22 @@ eventController = (function(core, util){
 
                     mouseUp_1( event );
 
-                    if ( mod.manipulator.active ) {
+                    if ( mod.manipulator.isActive() ) {
                         // wait to acquire targetFormId ------
-                        var timer = setInterval(function () { var tFormId = mod.manipulator.targetFormId; 
-                        if ( tFormId !== null ) { clearInterval(timer); 
+                        var timer = setInterval(function () {
+                        if (targetFormId !== null) { clearInterval(timer); 
                         // -----------------------------------
-                        mouseUp_2( tFormId );
+                        mouseUp_2();
                         mouseUp_3( event );
                         self.initialize();
                         // logic ends-------------------------
                         }}, 1);
                         // -----------------------------------
-                    }
-                    
-                    mouseUp_3( event );
+                    } else mouseUp_3( event );
                 },
 
                 mouseUp_content : function ( event ) {
-                     mod.manipulator.set_tFormId( util.parser( $(this) ).formId );
+                     targetFormId = util.parser( $(this) ).formId;
                 },
 
                 keyDown : function ( event ) {

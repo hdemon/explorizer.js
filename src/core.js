@@ -157,9 +157,8 @@ core = (function() {
         get$elem : function(formId, elemId) {
             if (arguments.length === 0 || arguments[0] === "all")
                 return $( "." + this.pref + this.lb.elem );
-            else if (arguments.length === 1){
-                console.log(this.form[formId].get$elem());
-                return this.form[formId].get$elem();}
+            else if (arguments.length === 1)
+                return this.form[formId].get$elem();
             else
                 return this.form[formId].get$elem(elemId);
         },

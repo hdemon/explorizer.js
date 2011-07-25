@@ -1,10 +1,10 @@
-﻿(function(exp){
+﻿(function(exp) {
     
 var windowForm;
-windowForm = (function(core, util){
+windowForm = (function(core, util) {
     var idCounter    = 0;
 
-    function NewWindowForm(){
+    function NewWindowForm() {
         this.formId     = idCounter;
         
         this.width      = core.width;
@@ -19,7 +19,7 @@ windowForm = (function(core, util){
         idCounter += 1;
     }
 
-    NewWindowForm.prototype = (function(){
+    NewWindowForm.prototype = (function() {
         var form    = "form",
             elem    = "elem";
             
@@ -57,7 +57,7 @@ windowForm = (function(core, util){
             // if the content's height is less than that of the inner wrapper, selection range is confired by
             // the content's size (because selection events work in the content object). And so the content's
             // size fit in the inner wrapper.
-            if ( $ct.height() < $iw.height() ) {
+            if ($ct.height() < $iw.height()) {
                 $ct
                     .css({ "height": $iw.height() - 8 });
             }
@@ -65,11 +65,11 @@ windowForm = (function(core, util){
 
         return {
              //public
-            add : function(){
+            add : function() {
                 console.log(util);
-                this.$ow    = util.createDiv( core.$wrapper,  core.lb.outrWrap,   this.formId );
-                this.$iw    = util.createDiv( this.$ow,       core.lb.innrWrap,   this.formId );
-                this.$ct    = util.createDiv( this.$iw,       core.lb.content,    this.formId );
+                this.$ow    = util.createDiv(core.$wrapper,  core.lb.outrWrap,   this.formId);
+                this.$iw    = util.createDiv(this.$ow,       core.lb.innrWrap,   this.formId);
+                this.$ct    = util.createDiv(this.$iw,       core.lb.content,    this.formId);
                 adjustSize(this.$ct, this.$ow, this.height, this.width);
 
                 this.$ct
@@ -90,85 +90,96 @@ windowForm = (function(core, util){
                         "leftGap"       : 5,
                         "zIndex"        : 3,
                         "angleHandleSize": 25,
-                        "end"           : function(){ fitCtSize(this.$ct, this.$iw) }.bind(this),
-                        "start"         : function(){
+                        "end"           : function() { fitCtSize(this.$ct, this.$iw) }.bind(this),
+                        "start"         : function() {
                             resetCtSize(this.$ct);
                             core.mod.aligner
-                                .setFocus( this.formId );
+                                .setFocus(this.formId);
                         }.bind(this),
                         "wrapper"       : $("#wrapper")    })
-                    .add( this.$ow );
+                    .add(this.$ow);
 
                 var $bar = this.mod.titleBar.add();
 
                 return     this.$ct;
             },
 
-            initialize : function(){
+            initialize : function() {
                 resetCtSize(this.$ct);
                 fitCtSize(this.$ct, this.$iw);
                 this.numbering();
             },
-
-            numbering : function(){
-                for ( var i = 0, $elem = core.get$elem( this.formId ), l = $elem.length; i < l; i++ ) {
-                    $elem.eq(i)
-                        .attr( "id", core.pref + this.formId + "_" + core.lb.elem  + "_" + i );
+            
+            /**
+             * "this.get$elem(i)" is unavailable here. Because get$elem function use
+             * id attribute, but id are not prepared before execution of "numbering" function.
+             */
+            numbering : function() {
+                for (var i = 0, $elem = this.get$elem("all"), l = $elem.length; i < l; i++) {
+                    $elem.eq(i) 
+                        .attr("id", core.pref + this.formId + "_" + core.lb.elem  + "_" + i);
                 }
             },
 
-            getFormId : function(){ return this.formId; },
-            get$ow : function(){ return this.$ow; },
-            get$iw : function(){ return this.$iw; },
-            get$ct : function(){ return this.$ct; },
+            getFormId : function() { return this.formId; },
+            get$ow : function() { return this.$ow; },
+            get$iw : function() { return this.$iw; },
+            get$ct : function() { return this.$ct; },
 
             get$elem : function (elemId) {
                 if (arguments.length === 0 || arguments[0] === "all")
-                    return this.get$ct().children( "." + core.pref + core.lb.elem );
+                    return this.get$ct().children("." + core.pref + core.lb.elem);
                 else
-                    return $( "#" + core.pref + this.formId + "_" + core.lb.elem + "_" + elemId );
+                    return $("#" + core.pref + this.formId + "_" + core.lb.elem + "_" + elemId);
             },
 
             preselectElem : function (elemId) {
                 this.get$elem(elemId)
-                    .removeClass( core.lb.selected  )
-                    .removeClass( core.lb.preselect )
-                    .addClass   ( core.lb.preselect );
+                    .removeClass(core.lb.selected )
+                    .removeClass(core.lb.preselect)
+                    .addClass   (core.lb.preselect);
             },
 
-            selectElem : function (elemId ) {
+            selectElem : function (elemId) {
                 this.get$elem(elemId)
-                    .removeClass( core.lb.selected  )
-                    .removeClass( core.lb.preselect )
-                    .addClass   ( core.lb.selected  );
+                    .removeClass(core.lb.selected )
+                    .removeClass(core.lb.preselect)
+                    .addClass   (core.lb.selected );
             },
 
-            unselectElem : function (elemId ) {
+            unselectElem : function (elemId) {
                 this.get$elem(elemId)
-                    .removeClass( core.lb.selected  )
-                    .removeClass( core.lb.preselect )
-                    .addClass   ( core.lb.unSelect  );
+                    .removeClass(core.lb.selected )
+                    .removeClass(core.lb.preselect)
+                    .addClass   (core.lb.unSelect );
             },
 
-            unselectAllElem : function(){
+            selectAllElem : function() {
                 this.get$elem("all")
-                    .removeClass( core.lb.selected  )
-                    .removeClass( core.lb.preselect )
-                    .addClass   ( core.lb.unSelect  );
+                    .removeClass(core.lb.selected )
+                    .removeClass(core.lb.preselect)
+                    .addClass   (core.lb.selected );
             },
 
+            unselectAllElem : function() {
+                this.get$elem("all")
+                    .removeClass(core.lb.selected )
+                    .removeClass(core.lb.preselect)
+                    .addClass   (core.lb.unSelect );
+            },
+                
             selectPropery : function (elemId) {
-                $( "." + core.lb.preselect )
-                    .removeClass( core.lb.preselect )
-                    .addClass   ( core.lb.selected  );
+                $("." + core.lb.preselect)
+                    .removeClass(core.lb.preselect)
+                    .addClass   (core.lb.selected );
             },
 
             isSelect : function (elemId, includePre) {
                 includePre = true;
                 return (
-                    $( "#" + core.pref + this.formId + "_" + core.lb.elem + "_" + elemId )
-                        .is( "."+core.lb.selected + ((includePre) ? ", ."+core.lb.preselect : "") )
-                )
+                    $("#" + core.pref + this.formId + "_" + core.lb.elem + "_" + elemId)
+                        .is("."+core.lb.selected + ((includePre) ? ", ."+core.lb.preselect : ""))
+               )
             }
         }
     }());

@@ -24,7 +24,7 @@ selector = (function(core, util){
         wrapLeft, wrapTop, wrapHeight,
         xt, yt,
         $iw, $elem, formId
-    ) {
+   ) {
         var scrX    = $iw.scrollLeft(),
             scrY    = $iw.scrollTop(),
 
@@ -45,11 +45,11 @@ selector = (function(core, util){
 
         // scroll function for the browser who don't have auto-scroll func. ex ie, opera
 
-        if ( core.autoScroll ) {
+        if (core.autoScroll) {
             if      (yn < 0)
-                scrollCt( $iw, yn * core.scrollWeight );
+                scrollCt( $iw, yn * core.scrollWeight);
             else if (yn > wrapHeight)
-                scrollCt( $iw, (yn - wrapHeight) * core.scrollWeight );
+                scrollCt( $iw, (yn - wrapHeight) * core.scrollWeight);
             else
                 stopScrollCt(); 
         }
@@ -66,50 +66,50 @@ selector = (function(core, util){
             var $e = core.get$elem(formId, i), 
                 pos = $e.position();
 
-            var left    = pos.left  + parseInt( $e.css( "margin-left" ) ),
-                right   = pos.left  + parseInt( $e.css( "margin-left" ) )   + $e.width(),
-                top     = pos.top   + parseInt( $e.css( "margin-top" ) )    + scrY,
-                bottom  = pos.top   + parseInt( $e.css( "margin-top" ) )    + scrY + $e.height();
+            var left    = pos.left  + parseInt( $e.css( "margin-left")),
+                right   = pos.left  + parseInt( $e.css( "margin-left"))   + $e.width(),
+                top     = pos.top   + parseInt( $e.css( "margin-top"))    + scrY,
+                bottom  = pos.top   + parseInt( $e.css( "margin-top"))    + scrY + $e.height();
 
             // in range?
-            var outRange = ( left > xns || right < startX || top > yns || bottom < startY );
-            if ( !outRange )
+            var outRange = (left > xns || right < startX || top > yns || bottom < startY);
+            if (!outRange)
                 core.preselectElem(formId, i);
-            else if ( !event.ctrlKey && !event.shiftKey )
+            else if (!event.ctrlKey && !event.shiftKey)
                 core.unselectElem(formId, i);
         }
     }
 
-    function scrollCt ( $iw, val ) {
-        if ( timer === null || val !== _preVal) {
+    function scrollCt ($iw, val) {
+        if (timer === null || val !== _preVal) {
             clearInterval(timer);
-            timer = setInterval(function () {//
-                $iw.scrollTop( $iw.scrollTop() + val ); 
+            timer = setInterval(function() {//
+                $iw.scrollTop( $iw.scrollTop() + val); 
             }, 1);
             _preVal = val;
         }
     }
 
-    function stopScrollCt () {
+    function stopScrollCt() {
         clearInterval(timer);
         timer = null;
     }
     
-    function removeBox () {
-        if ( $box ) $box.remove();
+    function removeBox() {
+        if ($box) $box.remove();
     }
     
     return {                
         setParam : function(args) {
             args = args || {};
-            autoScroll = args .autoScroll || ( util.browser.ie || util.browser.opera );
+            autoScroll = args .autoScroll || (util.browser.ie || util.browser.opera);
             scrollWeight = (typeof args .scrollWeight === "undefined") ? 1 : args. scrollWeight;
             return this;
         },
 
         onElem : function(ctrlKey, shiftKey, formId, clickedId, cb) {                
             var p1, p2, i,
-                isSelect = core.isSelect( formId, clickedId );
+                isSelect = core.isSelect( formId, clickedId);
                                 
             if (shiftKey) {
                 // shiftを押しながら選択した場合、
@@ -124,41 +124,41 @@ selector = (function(core, util){
                     p2 = clickedId;
                 }
                 if (!ctrlKey) core.unselectAllElem();
-                for (var i = p1, counter = 0; i <= p2; ++i) core.preselectElem( formId, i );
+                for (var i = p1, counter = 0; i <= p2; ++i) core.preselectElem( formId, i);
                 
-                core.cb( cb, "selectWithShift", [ formId, clickedId ] );
-            } else if ( ctrlKey ) {
-                if ( isSelect ) { 
-                    core.unselectElem( formId, clickedId );
-                    core.cb( cb, "unselectByCtrl", [ formId, clickedId ] );
+                core.cb( cb, "selectWithShift", [ formId, clickedId ]);
+            } else if (ctrlKey) {
+                if (isSelect) { 
+                    core.unselectElem( formId, clickedId);
+                    core.cb( cb, "unselectByCtrl", [ formId, clickedId ]);
                 } else {
-                    core.preselectElem( formId, clickedId );
-                    core.cb( cb, "preselectByCtrl", [ formId, clickedId ] );
+                    core.preselectElem( formId, clickedId);
+                    core.cb( cb, "preselectByCtrl", [ formId, clickedId ]);
                  }
-            } else if ( !ctrlKey ) {
-                if ( isSelect ) { 
-                    core.cb( cb, "downOnSelected", [ formId, clickedId ] );
+            } else if (!ctrlKey) {
+                if (isSelect) { 
+                    core.cb( cb, "downOnSelected", [ formId, clickedId ]);
                    } else {
                     core.unselectAllElem();
-                    core.preselectElem( formId, clickedId );
-                    core.cb( cb, "preselect", [ formId, clickedId ] );
+                    core.preselectElem( formId, clickedId);
+                    core.cb( cb, "preselect", [ formId, clickedId ]);
                 }
             }
             prevClicked = clickedId;
             prevShift = shiftKey;
         },
 
-        onBack : function ( x, y, formId ) {                
-            var $ow     = core.get$ow( formId ),
-                $iw     = core.get$iw( formId ),
-                $ct     = core.get$ct( formId ),
-                $elem   = core.get$elem( formId );
+        onBack : function (x, y, formId) {                
+            var $ow     = core.get$ow( formId),
+                $iw     = core.get$iw( formId),
+                $ct     = core.get$ct( formId),
+                $elem   = core.get$elem( formId);
             
             noSelect = true;
             
             // The following logic prevent the status changes into "byDrag" that is caused immediately, 
             // so as to keep the status "mouseDownonNonElement" in case of selecting no elements eventually.
-            util.setTrigDelayer( x, y, 1, function () {
+            util.setTrigDelayer( x, y, 1, function() {
                 var wrapPos     = $ow.position(),
                     wrapHeight  = $ow.outerHeight(),
                     wrapScrLeft = $iw.scrollLeft(),
@@ -181,28 +181,28 @@ selector = (function(core, util){
                     slctBoxId,
                     formId,
                     util.preventSelect()
-                );
+               );
 
                 // bind new mousemove event.
-                ehandle_drag = function ( event ) {
+                ehandle_drag = function (event) {
                     byDrag(
                         event,
                         startX, startY,
                         wrapLeft, wrapTop, wrapHeight,
                         xt, yt,
                         $iw, $elem, formId
-                    );
+                   );
                 };
 
                 $(window)
-                    .bind( "mousemove", ehandle_drag );
-            } );
+                    .bind( "mousemove", ehandle_drag);
+            });
         },
 
-        mouseUp : function () {                
+        mouseUp : function() {                
             stopScrollCt();
             removeBox();
-            if ( noSelect ) core.unselectAllElem();
+            if (noSelect) core.unselectAllElem();
             noSelect = false;
             return this;
         }

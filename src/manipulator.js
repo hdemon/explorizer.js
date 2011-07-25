@@ -2,124 +2,125 @@
 
 var manipulator;
 manipulator = (function(core, util){
-    var self; // <- this
+    var $cursor,           
+        active      = false, 
+        baseFormId,
+        elemNum,
+        mode;
     
-    function dragElement( event ) {
-        setCurStatus( event.ctrlKey );
-        displayCursor( event.pageX, event.pageY );
+    function dragElement_(event) {
+        setCurStatus_(event.ctrlKey);
+        displayCursor_(event.pageX, event.pageY);
     }
 
-    function setCurStatus( ctrlKey ) {
+    function setCurStatus_(ctrlKey) {
         var newClass =
             ctrlKey 
-                ? ( c.lb.cursor_copy )
-                : ( c.lb.cursor_move );
+                ? (core.lb.cursor_copy)
+                : (core.lb.cursor_move);
 
-        if ( self.$cursor != null ){
-            self.$cursor
-                .removeClass( c.lb.cursor_copy )
-                .removeClass( c.lb.cursor_move )
-                .addClass( newClass );
+        if ($cursor != null){
+            $cursor
+                .removeClass(core.lb.cursor_copy)
+                .removeClass(core.lb.cursor_move)
+                .addClass(newClass);
         }
 
-        self.mode = ( ctrlKey ) ? "copy" : "move"; 
+        mode = (ctrlKey) ? "copy" : "move"; 
     }
 
-    function displayCursor( x, y ) {
-        self.$cursor
+    function displayCursor_(x, y) {
+        $cursor
             .css({
                 "top"    : y,
                 "left"    : x
             })
             .children()
-            .text( self.elemNum );
+            .text(elemNum);
     }
 
-    function createCursor () {
+    function createCursor_() {
         $("body")
             .append(
                 "<div " +
                     "id=\""+
-                        c.pref + c.lb.cursor +
+                        core.pref + core.lb.cursor +
                     "\" " +
                     "class=\""+
-                        c.lb.cursor_move +
+                        core.lb.cursor_move +
                     "\"" +
-                    hExplorizer.util.preventSelect +
+                    util.preventSelect() +
                 ">" +
                     "<div " +
                         "id=\""+
-                            c.pref + c.lb.cursor_text +
+                            core.pref + core.lb.cursor_text +
                         "\"" +
-                        hExplorizer.util.preventSelect +
+                        util.preventSelect() +
                     ">" +
                     "</div>" +
                 "</div>"
-            );    
+           );    
             
-        return $( "#" + c.pref + c.lb.cursor );
+        return $("#" + core.pref + core.lb.cursor);
     }
 
-    function copyElements ( $elem, formId ) {
-        c.get$ct( formId )
-            .append( $elem.clone() );
+    function copyElements_($elem, formId) {
+        core.get$ct(formId)
+            .append($elem.clone());
     }
 
-    function moveElements ( $elem, formId ) {
-        copyElements( $elem, formId );
+    function moveElements_($elem, formId) {
+        copyElements_($elem, formId);
         $elem.remove();
     }
 
     return {
-        manipulate : function ( event, formId ) {
-            t = this;
-            this.targetFormId = null;
-            this.baseFormId = formId;
-            this.elemNum =
-                c.get$elem()
-                    .filter( "." + c.lb.selected +",." + c.lb.preselect )
+        manipulate : function (event, formId) {
+            baseFormId = formId;
+            elemNum =
+                core.get$elem()
+                    .filter("." + core.lb.selected +",." + core.lb.preselect)
                     .size();
 
-            var    callback = function () {
-                this.$cursor= createCursor();
+            util.setTrigDelayer(event.pageX, event.pageY, 18, callback);
+            
+            function callback() {
+                $cursor= createCursor_();
                 $(window)
-                    .bind( "mousemove", dragElement    );
-                this.active = true;
-            };
-
-            util.setTrigDelayer( event.pageX, event.pageY, 18, callback );
+                    .bind("mousemove", dragElement_);
+                active = true;
+            }
         },
 
-        set_tFormId : function ( targetFormId ) {
-            this.targetFormId = targetFormId;
-        },
+        mouseUp : function (targetFormId, callback) {
+            var $elem = $("." + core.lb.selected);
 
-        mouseUp : function ( targetFormId, callback ) {
-            var m         = c.module,
-                $elem    = $( "." + c.lb.selected );
-
-            if ( this.active ) {
-                if ( this.mode === "copy" ) copyElements( $elem, targetFormId );
-                else if ( this.mode === "move" ) moveElements( $elem, targetFormId );
-                callback( this.baseFormId, targetFormId );
+            if (active) {
+                if (mode === "copy") copyElements_($elem, targetFormId);
+                else if (mode === "move") moveElements_($elem, targetFormId);
+                
+                callback(baseFormId);
             }
 
-            this.targetFormId = null;
-            this.active = false;
+            targetFormId = null;
+            active = false;
 
             this.removeCursor();
-    //        removeEvent();
         },
         
-        setCurStatus : function ( ctrlKey ) {
-            setCurStatus( ctrlKey );
+        isActive : function() {
+            return active;
+        },
+        
+        setCurStatus : function (ctrlKey) {
+            setCurStatus_(ctrlKey);
         },
         
         removeCursor : function () {
-            if ( typeof this.$cursor !== "undefined" ) this.$cursor.remove();
+            if (typeof $cursor !== "undefined") $cursor.remove();
         }
     }    
-}(exp.core, exp.eutil, exp.core.module));
+}(exp.core, exp.util, exp.core.mod));
 
 exp.manipulator = manipulator;
 })(exp);
