@@ -7,53 +7,51 @@ locator = (function(core, util){
     function calc() {
     }
     
-    function mouseMove ($ow, owWidth, owHeight, wrapWidth, wrapHeight, x, y, divX, divY) {
+    function mouseMove ($ow, owWidth, owHeight, wrapWidth, wrapHeight, tBarHeight, x, y) {
         var _x, _y;
         
         // calculate and limit range.
-        if (x - divX + owWidth > wrapWidth)
+        if (x + owWidth > wrapWidth)
             _x = wrapWidth - owWidth;
-        else if (x - divX < 0)
+        else if (x < 0)
             _x = 0;
         else
-            _x = x - divX;   
+            _x = x;   
         
-        if (y - divY + owHeight > wrapHeight)
+        if (y + owHeight > wrapHeight)
             _y = wrapHeight - owHeight;
-        else if (y - divY < 0)
-            _y = 0;
+        else if (y - tBarHeight < 0)
+            _y = tBarHeight;
         else
-            _y = y - divY;    
+            _y = y;    
         
         $ow
             .css({
                 "top"  : _y,
-                "left" : _x });    
-         /*                   .css({
-                "top"  : y - divY,
-                "left" : x - divX });                  */  
+                "left" : _x });
     }  
                         
     return {
-        mouseDown : function (x, y, $wrapper, $ow) {
+        mouseDown : function (x, y, $ow, $titleBar) {
             var pos         = $ow.position(),
                 prevLeft    = pos.left,
                 prevTop     = pos.top,
                 divX        = x - prevLeft, // divasion from handle central axis. 
                 divY        = y - prevTop,    // divasion from handle central axis. 
-                wrapWidth   = $wrapper.width(),
-                wrapHeight  = $wrapper.height(),
+                wrapWidth   = core.get$wrapper().width(),
+                wrapHeight  = core.get$wrapper().height(),
                 owWidth     = $ow.width(),
-                owHeight    = $ow.height();                    
+                owHeight    = $ow.height(),
+                tBarHeight  = $titleBar.height();                   
 
-            ehandle    = function ( event ) {
+            ehandle = function(event) {
                 //event.stopPropagation();
                 mouseMove(
                     $ow,                    
                     owWidth, owHeight,
                     wrapWidth, wrapHeight,
-                    event.pageX, event.pageY,
-                    divX, divY );
+                    tBarHeight,
+                    event.pageX - divX, event.pageY - divY );
             };
             
             $(window)

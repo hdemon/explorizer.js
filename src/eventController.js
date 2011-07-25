@@ -39,16 +39,16 @@ eventController = (function(core, util){
             .onBack(event.pageX, event.pageY, formId);
     }
 
-    function mouseDown_titleBar (event, formId, $ow) {
+    function mouseDown_titleBar (event, formId) {
         alignment(formId);
 
         mod.locator
-            .mouseDown(event.pageX, event.pageY, core.get$wrapper(), $ow);
+            .mouseDown(event.pageX, event.pageY, core.get$ow(formId), core.get$titleBar(formId));
     }
 
     function mouseUp_1 (event) {
         $window
-           .unbind("mousemove");
+            .unbind("mousemove");
         mod.selector
             .mouseUp();
 
@@ -100,11 +100,10 @@ eventController = (function(core, util){
                 },
 
                 mouseDown_titleBar : function(event) {
-                    var p = util.parser($(this)),
-                        $ow= core.form[p.formId].get$ow();
+                    var p = util.parser($(this));
 
                     event.stopPropagation();
-                    mouseDown_titleBar(event, p.formId, $ow);
+                    mouseDown_titleBar(event, p.formId);
                 },
 
                 mouseUp    : function(event) {
