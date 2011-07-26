@@ -75,14 +75,8 @@ manipulator = (function(core, util){
     }
     
     function manipulation_($elem, targetFormId) {
-        if (mode === "copy")        copyElements_($elem, targetFormId);
-        else if (mode === "move")   moveElements_($elem, targetFormId);
-      /*  
-        core.form[ baseFormId ]
-            .numbering();
-        core.form[ targetFormId ]
-            .numbering();
-        core.unselectAllElem();   */         
+        if      (mode === "copy")   copyElements_($elem, targetFormId);
+        else if (mode === "move")   moveElements_($elem, targetFormId);    
     }
     
     return {            

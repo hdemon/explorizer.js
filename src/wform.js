@@ -109,11 +109,20 @@ windowForm = (function(core, util) {
                         "zIndex"        : 3,
                         "angleHandleSize": 25,
                         "maxY" :  600 ,
-                        "end"           : function() { fitCtSize(this.$ct, this.$iw) }.bind(this),
                         "start"         : function() {
                             resetCtSize(this.$ct);
                             core.mod.aligner
                                 .setFocus(this.formId);
+                            core.callback.resizingStart();
+                        }.bind(this),
+                        /* too decrease rendering speed.
+                        "resizing"      : function() {
+                            core.callback.resizing();
+                        }.bind(this),
+                        */
+                        "end"           : function() {
+                            fitCtSize(this.$ct, this.$iw)
+                            core.callback.resizingEnded();                            
                         }.bind(this),
                         "wrapper"       : $("#wrapper")    })
                     .add(this.$ow);

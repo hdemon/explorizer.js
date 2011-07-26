@@ -51,19 +51,6 @@ util = (function(core) {
             return $("." + core.pref + core.lb.form + "_" + formId)
                     .filter("." + core.pref + name_)
         },
-
-        parser : function ($target) {
-            var formId  = $target.attr("class").match(/form_[0-9999]{1,}/)[0].slice(5)-0,
-               // part    = $target.attr("class").match(/elem_[0-9999]/)[0].slice(5),
-                _elemId = $target.attr("class").match(/elem_[0-9999]{1,}/);
-            var elemId  = (_elemId !== null ? _elemId[0].slice(5)-0 : false);
-                    
-            return {
-                "formId" : formId,
-  //              "part"   : part,
-                "elemId" : elemId
-            }
-        },
             
         setTrigDelayer : function (startX, startY, torelance, callback) {
             this.mouseMove_delayer = function (event) {

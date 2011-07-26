@@ -44,7 +44,7 @@ core = (function() {
             // optional --------
             // scroll                                 
             this.autoScroll    = args .autoScroll  ||
-               (exp.util.browser.ie || exp.util.browser.opera);
+               (exp.util.browser.ie || exp.util.browser.opera || exp.util.browser.firefox);
             this.scrollWeight  = args .scrollWeight|| 0.6;
 
             // individual parameter
@@ -68,7 +68,12 @@ core = (function() {
                 selected        : args .selected        || function () {},
                 formRemoved     : args .formRemoved     || function () {},
                 formAdded       : args .formAdded       || function () {},
-                onElement       : args .formAdded       || function () {}          
+                onElement       : args .onElement       || function () {},
+                focusChanged    : args .focusChange     || function () {},
+                focusKeeped     : args .focusKeeped     || function () {},
+                resizingStart   : args .resizingStart   || function () {},
+                resizing        : args .resizing        || function () {},
+                resizingEnded   : args .resizingEnded   || function () {}
             };
 
             return this;

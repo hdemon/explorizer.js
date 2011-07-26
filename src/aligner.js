@@ -2,12 +2,14 @@
 
 var aligner;
 aligner = (function(core, util){
+    var callback;
+    
     function getZindex ( $ow ) {
         return $ow
             .css( "z-index" );
     }
 
-    function getMaxZindex ( formObj ) {
+    function getMaxZindex( formObj ) {
         var zIndexArray = [],
             all$ow = core.get$ow( "all" );
         
@@ -21,7 +23,7 @@ aligner = (function(core, util){
         }
     }
 
-    function setZindex ( $ow, val, method ) {
+    function setZindex( $ow, val, method ) {
         var current = $ow.css("z-index")-0;
 
         switch ( method ) {
@@ -33,13 +35,9 @@ aligner = (function(core, util){
                 break;
         };
     }
-
-    function callback ( wrapperObj, handle ) {
-        if ( typeof wrapperObj[handle] !== "undefined" ) return wrapperObj[handle]();
-    }
             
-    return {
-        setFocus : function ( formId, callback ) {                
+    return {               
+        setFocus : function(formId) {                
             var i, l, $ow_rest, prevZindex, zIndex = {};
             
             var focused    = this.focusedFormId,
@@ -48,8 +46,8 @@ aligner = (function(core, util){
 
             // if selected window's id differs with previous active window...
             if ( clicked !== focused ) {
-                zIndex         = getMaxZindex.bind(this)( core.form );
-                prevZindex    = getZindex.bind(this)( $ow );
+                zIndex      = getMaxZindex.bind(this)( core.form );
+                prevZindex  = getZindex.bind(this)( $ow );
 
                 setZindex.bind(this)( $ow, zIndex.max + 1, "set" );
 
@@ -62,11 +60,11 @@ aligner = (function(core, util){
                 }
 
                 this.focusedFormId = clicked;
-         //       if ( typeof callback.changed !== "undefined" ) callback.changed();
+                core.callback.focusChanged();
 
             } else {
                 this.focusedFormId = clicked;
-         //       if ( typeof callback.notChanged !== "undefined" ) callback.notChanged();
+                core.callback.focusKeeped();
             }
             
             return    this;
