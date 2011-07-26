@@ -10,7 +10,7 @@ core = (function() {
             manipulator : exp .manipulator,
             locator     : exp .locator
         };
-        this.id    = id;
+        this.formId = id;
         this.form  = [];
     }
 
@@ -45,7 +45,7 @@ core = (function() {
             // scroll                                 
             this.autoScroll    = args .autoScroll  ||
                (exp.util.browser.ie || exp.util.browser.opera);
-            this.scrollWeight  = args .scrollWeight|| 0.8;
+            this.scrollWeight  = args .scrollWeight|| 0.6;
 
             // individual parameter
             // style
@@ -84,39 +84,39 @@ core = (function() {
             // under "form.rootObj". $iw(inner wrapper) and $ow(outer wrapper)
             // locate there too.
             var form    = new exp.windowForm(this),
-                id      = form.getFormId();
-            this.form[ id ] = form;
+                formId  = form.getFormId();
+            this.form[ formId ] = form;
             form = null;
-            var _form = this.form[ id ];
+            var _form = this.form[ formId ];
 
-            _form .add();
-
-            _form.$ct
-                .data({
-                    "formId" : id
-                });
+            _form
+                .add();
 
             _form.$ow
-                .css({ "z-index" : id });
+                .css({ "z-index" : formId });
 
             // reset and add event listener for the new windowForm.
             this.mod.eventController
                 .set({
-                    "callback" : this.initialize.bind(this)
-                })
-                    .initialize();
+                    "callback" : this.initialize.bind(this) })
+                .initialize();
                                                  
-                this.id++;
-                return _form.$ct;
-            },
+            this.formId++;
+            return { "$content" : _form.$ct, "formId" : formId }
+        },
 
-            initialize : function(id) {
+        remove : function(formId) {
+            this.form[formId].remove();
+        },
+            
+        initialize : function() {
             this.mod.eventController
                 .initialize();
 
+            core.unselectAllElem();
             // 変更があったformのみにinitializeを絞るべき？
-            for(var i = 0, l = this.form.length; i < l; i++) {
-                var form    = this.form[ i ];
+            for (var i = 0, l = this.form.length; i < l; i++) {
+                var form = this.form[ i ];
                 form .initialize();
             }
         },
@@ -159,10 +159,31 @@ core = (function() {
             if (arguments[0] === "all" || arguments.length === 0) {
                 return $( "." + this.pref + "titleBar" );
             } else {
-                return $( "#" + this.pref + formId + "_" + "titleBar" );
+                return this.form[formId].get$titleBar();
             }
         },
-                
+
+        get$titleSpace : function(formId) {
+            if (arguments[0] === "all" || arguments.length === 0) {
+                return $( "." + this.pref + "titleSpace" );
+            } else {
+                return this.form[formId].get$titleSpace();
+            }
+        },
+            
+        parse : function ($target) {
+            var _formId = $target.attr("class").match(/form_[0-9]{1,}/),                
+                formId  = (_formId !== null ? _formId[0].slice(5)-0 : false),
+                _elemId = $target.attr("class").match(/elem_[0-9]{1,}/),
+                elemId  = (_elemId !== null ? _elemId[0].slice(5)-0 : false);
+                    
+            return {
+                "formId" : formId,
+  //              "part"   : part,
+                "elemId" : elemId
+            }
+        },            
+                            
         selectElem : function(formId, elemId) { this.form[formId].selectElem(elemId); },
         preselectElem : function(formId, elemId) { this.form[formId].preselectElem(elemId); },
         unselectElem : function(formId, elemId) { this.form[formId].unselectElem(elemId); },
@@ -183,7 +204,7 @@ core = (function() {
         isSelect : function(formId, elemId, includePreslct) {
             includePre = true;
             return (
-                $( "#" + this.pref + formId + "_" + this.lb.elem + "_" + elemId )
+                this.get$elem(formId, elemId)
                     .is( "."+this.lb.selected + ((includePreslct) ? ", ."+this.lb.preselect : "") )
             )
         },

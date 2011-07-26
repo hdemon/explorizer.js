@@ -27,7 +27,8 @@ resizer = (function(util) {
                 this.$handle["right"]   .css({ "height": this.$t.height() - this.topGap });
             },
             range : function (event) {
-                var nowTop      = event.pageY - this.divY_Hnd_top,
+                var top, height,
+                    nowTop      = event.pageY - this.divY_Hnd_top,
                     divY        = this.prevTop - nowTop,
                     _height     = (this.height - this.borderHeight) + divY,
                     accTerm     = (nowTop + this.topGap < 0),
@@ -69,7 +70,8 @@ resizer = (function(util) {
             mouseMove : function (event) { this.$t.css( handle.bottom.range.bind(this)(event)); },
             mouseUp : handle.top.mouseUp,
             range : function (event) {
-                var nowTop      = event.pageY - this.divY_Hnd_bottom,
+                var height,
+                    nowTop      = event.pageY - this.divY_Hnd_bottom,
                     divY        = nowTop - this.prevBottom,
                     _height     = (this.height - this.borderHeight) + divY,
                     accTerm     = (nowTop > this.wrap.height),
@@ -105,7 +107,8 @@ resizer = (function(util) {
                 this.$handle["bottom"]  .css({ "width" : this.$t.width() });
             },
             range : function (event) {
-                var nowLeft     = event.pageX - this.divX_Hnd_left,
+                var left, width,
+                    nowLeft     = event.pageX - this.divX_Hnd_left,
                     divX        = this.prevLeft - nowLeft,
                     _width      = (this.width - this.borderWidth) + divX,
                     accTerm     = (nowLeft + this.leftGap < 0),
@@ -147,7 +150,8 @@ resizer = (function(util) {
             mouseMove : function (event) { this.$t.css( handle.right.range.bind(this)(event)); },
             mouseUp : handle.left.mouseUp,
             range : function (event) {
-                var nowLeft     = event.pageX - this.divX_Hnd_right,
+                var width,
+                    nowLeft     = event.pageX - this.divX_Hnd_right,
                     divX        = nowLeft - this.prevRight,
                     _width      = (this.width - this.borderHeight) + divX,
                     accTerm     = (nowLeft > this.wrap.width),
@@ -267,9 +271,12 @@ resizer = (function(util) {
             this.divY_Hnd_bottom = y - this.prevBottom; // divasion from handle central axis. 
             this.borderHeight   = ( parseInt(this.$t.css("border-top-width")) +
                                     parseInt(this.$t.css("border-bottom-width")) );
+            
+            this.callback.start();
 
             this.event.mouseMove[ angle ] = function (event) {
                 handle[ angle ].mouseMove.bind(this)(event);
+                this.callback.resizing();
             }.bind(this);
             $(window).bind( "mousemove", this.event.mouseMove[ angle ] );
             
@@ -339,8 +346,9 @@ resizer = (function(util) {
                 };
 
                 this.callback    = {
-                    start    : args .start    || function() {},
-                    end        : args .end        || function() {}
+                    start       : args .start       || function() {},
+                    resizing    : args .resizing    || function() {},
+                    end         : args .end         || function() {}
                 };
                 
                 return    this;

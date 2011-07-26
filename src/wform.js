@@ -62,11 +62,29 @@ windowForm = (function(core, util) {
                     .css({ "height": $iw.height() - 8 });
             }
         }
-
+            
+        /**
+         * "this.get$elem(i)" is unavailable here. Because get$elem function use
+         * id attribute, but id are not prepared before execution of "numbering" function.
+         */
+        function numbering($allElem, formId) {
+            for (var i = 0, l = $allElem.length; i < l; i++) {
+                var $tElem = $allElem.eq(i),
+                    p = core.parse($tElem),
+                    oldFormCls = String(core.pref + core.lb.form + "_" + p.formId),
+                    oldElemCls = String(core.pref + core.lb.elem + "_" + p.elemId);
+                    
+                $tElem
+                    .removeClass(oldFormCls)
+                    .removeClass(oldElemCls)
+                    .addClass(core.pref + core.lb.form + "_" + formId)
+                    .addClass(core.pref + core.lb.elem + "_" + i);
+            }
+        }
+            
         return {
              //public
             add : function() {
-                console.log(util);
                 this.$ow    = util.createDiv(core.$wrapper,  core.lb.outrWrap,   this.formId);
                 this.$iw    = util.createDiv(this.$ow,       core.lb.innrWrap,   this.formId);
                 this.$ct    = util.createDiv(this.$iw,       core.lb.content,    this.formId);
@@ -100,7 +118,10 @@ windowForm = (function(core, util) {
                         "wrapper"       : $("#wrapper")    })
                     .add(this.$ow);
 
-                var $bar = this.mod.titleBar.add();
+                var $bar = this.mod.titleBar
+                    .set({
+                        "remove" : function() { this.remove(); }.bind(this) })
+                    .add();
 
                 return     this.$ct;
             },
@@ -108,18 +129,13 @@ windowForm = (function(core, util) {
             initialize : function() {
                 resetCtSize(this.$ct);
                 fitCtSize(this.$ct, this.$iw);
-                this.numbering();
+                numbering(this.get$elem("all"), this.formId);
             },
             
-            /**
-             * "this.get$elem(i)" is unavailable here. Because get$elem function use
-             * id attribute, but id are not prepared before execution of "numbering" function.
-             */
-            numbering : function() {
-                for (var i = 0, $elem = this.get$elem("all"), l = $elem.length; i < l; i++) {
-                    $elem.eq(i) 
-                        .attr("id", core.pref + this.formId + "_" + core.lb.elem  + "_" + i);
-                }
+            remove : function() {
+                this.$ow.remove();
+                delete this;
+                core.callback.formRemoved();
             },
 
             getFormId : function() { return this.formId; },
@@ -131,11 +147,21 @@ windowForm = (function(core, util) {
                 if (arguments.length === 0 || arguments[0] === "all")
                     return this.get$ct().children("." + core.pref + core.lb.elem);
                 else
-                    return $("#" + core.pref + this.formId + "_" + core.lb.elem + "_" + elemId);
+                    return this.get$ct().children("." + core.pref + core.lb.elem + "_" + elemId);
+             //   $("." + core.pref + this.formId + "_" + core.lb.elem + "_" + elemId);
             },
 
+            get$titleBar : function() {
+                return this.mod.titleBar.get$titleBar();
+            },
+
+            get$titleSpace : function() {
+                return this.mod.titleBar.get$titleSpace();
+            },
+                            
             preselectElem : function (elemId) {
                 this.get$elem(elemId)
+                    .removeClass(core.lb.unSelect )
                     .removeClass(core.lb.selected )
                     .removeClass(core.lb.preselect)
                     .addClass   (core.lb.preselect);

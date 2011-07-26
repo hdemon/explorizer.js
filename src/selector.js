@@ -19,47 +19,50 @@ selector = (function(core, util){
         ehandle_drag;
 
     function byDrag (
-        event,
-        startX, startY,
-        wrapLeft, wrapTop, wrapHeight,
-        xt, yt,
-        $iw, $elem, formId
+        relX, relY,
+        relX_start, relY_start,
+        owLeft, owTop, owHeight,
+        wrapWidth, wrapHeight,
+        contentWidth, contentHeight,
+        $iw, $elem, formId,
+        ctrlKey, shiftKey
    ) {
         var scrX    = $iw.scrollLeft(),
             scrY    = $iw.scrollTop(),
-
-            xn  = event.pageX - wrapLeft,
-            yn  = event.pageY - wrapTop,
-            xns = xn + scrX,
-            yns = yn + scrY,
+            nowRelX    = relX + scrX,
+            nowRelY    = relY + scrY,
             t;
 
         // calculate and limit range.
-        if      (xns > xt)   xns = xt
-        else if (xns < 0)    xns = 0  
-        if      (yns > yt)   yns = yt
-        else if (yns < 0)    yns = 0 
+        if      (nowRelX > contentWidth)
+            nowRelX = contentWidth;
+        else if (nowRelX < 0)
+            nowRelX = 0; 
+        if      (nowRelY > contentHeight)
+            nowRelY = contentHeight;
+        else if (nowRelY < 0)
+            nowRelY = 0;
 
-        if (startX > xns) { t = xns; xns = startX; startX = t; }
-        if (startY > yns) { t = yns; yns = startY; startY = t; }
+        if (relX_start > nowRelX) { t = nowRelX; nowRelX = relX_start; relX_start = t; }
+        if (relY_start > nowRelY) { t = nowRelY; nowRelY = relY_start; relY_start = t; }
 
         // scroll function for the browser who don't have auto-scroll func. ex ie, opera
-
         if (core.autoScroll) {
-            if      (yn < 0)
-                scrollCt( $iw, yn * core.scrollWeight);
-            else if (yn > wrapHeight)
-                scrollCt( $iw, (yn - wrapHeight) * core.scrollWeight);
+            if      (relY < 0)
+                scrollCt($iw, relY * core.scrollWeight);
+            else if (relY > owHeight)
+                scrollCt($iw, (relY - owHeight) * core.scrollWeight);
             else
                 stopScrollCt(); 
         }
+        
         // draw a box that shows selecting range.
         $box
             .css({
-                "left"  : startX,
-                "top"   : startY,
-                "width" : xns-startX,
-                "height": yns-startY });
+                "left"  : relX_start,
+                "top"   : relY_start,
+                "width" : nowRelX - relX_start,
+                "height": nowRelY - relY_start });
 
         // determinate whether or not elements are in range
         for (var i = 0, l = $elem.length; i < l; i++) {
@@ -72,10 +75,10 @@ selector = (function(core, util){
                 bottom  = pos.top   + parseInt( $e.css( "margin-top"))    + scrY + $e.height();
 
             // in range?
-            var outRange = (left > xns || right < startX || top > yns || bottom < startY);
+            var outRange = (left > nowRelX || right < relX_start || top > nowRelY || bottom < relY_start);
             if (!outRange)
                 core.preselectElem(formId, i);
-            else if (!event.ctrlKey && !event.shiftKey)
+            else if (!ctrlKey && !shiftKey)
                 core.unselectElem(formId, i);
         }
     }
@@ -100,16 +103,13 @@ selector = (function(core, util){
     }
     
     return {                
-        setParam : function(args) {
-            args = args || {};
-            autoScroll = args .autoScroll || (util.browser.ie || util.browser.opera);
-            scrollWeight = (typeof args .scrollWeight === "undefined") ? 1 : args. scrollWeight;
+        set : function(args) {
             return this;
         },
 
         onElem : function(ctrlKey, shiftKey, formId, clickedId, cb) {                
             var p1, p2, i,
-                isSelect = core.isSelect( formId, clickedId);
+                isSelect = core.isSelect(formId, clickedId);
                                 
             if (shiftKey) {
                 // shiftを押しながら選択した場合、
@@ -149,30 +149,34 @@ selector = (function(core, util){
         },
 
         onBack : function (x, y, formId) {                
-            var $ow     = core.get$ow( formId),
-                $iw     = core.get$iw( formId),
-                $ct     = core.get$ct( formId),
-                $elem   = core.get$elem( formId);
+            var $ow     = core.get$ow(formId),
+                $iw     = core.get$iw(formId),
+                $ct     = core.get$ct(formId),
+                $elem   = core.get$elem(formId);
             
             noSelect = true;
             
             // The following logic prevent the status changes into "byDrag" that is caused immediately, 
             // so as to keep the status "mouseDownonNonElement" in case of selecting no elements eventually.
             util.setTrigDelayer( x, y, 1, function() {
-                var wrapPos     = $ow.position(),
-                    wrapHeight  = $ow.outerHeight(),
-                    wrapScrLeft = $iw.scrollLeft(),
-                    wrapScrTop  = $iw.scrollTop(),
+                var $wrapper    = core.get$wrapper(),
+                    wrapLeft    = $wrapper.offset().left,
+                    wrapTop     = $wrapper.offset().top,
+                    wrapWidth   = $wrapper.width(),
+                    wrapHeight  = $wrapper.height(),
+                    owPos       = $ow.position(),
+                    owLeft      = owPos.left,
+                    owTop       = owPos.top,
+                    owHeight    = $ow.outerHeight(),
+                    owScrLeft   = $iw.scrollLeft(),
+                    owScrTop    = $iw.scrollTop(),
+                    relX_start  = x - wrapLeft - owLeft + owScrLeft,
+                    relY_start  = y - wrapTop - owTop + owScrTop,
+                    owBottom    = owTop + owHeight,
                     fieldWidth  = $ct.width(),
                     fieldHeight = $ct.height(),
-
-                    wrapLeft    = wrapPos.left,
-                    wrapTop     = wrapPos.top,
-                    startX      = x - wrapLeft + wrapScrLeft,
-                    startY      = y - wrapTop + wrapScrTop,
-                    wrapBottom  = wrapTop + wrapHeight,
-                    xt          = fieldWidth  -2,
-                    yt          = fieldHeight -2;
+                    contentWidth  = fieldWidth  - 2,
+                    contentHeight = fieldHeight - 2;
 
                 noSelect = false;
             
@@ -181,16 +185,18 @@ selector = (function(core, util){
                     slctBoxId,
                     formId,
                     util.preventSelect()
-               );
-
+                );
+                
                 // bind new mousemove event.
                 ehandle_drag = function (event) {
                     byDrag(
-                        event,
-                        startX, startY,
-                        wrapLeft, wrapTop, wrapHeight,
-                        xt, yt,
-                        $iw, $elem, formId
+                        event.pageX - wrapLeft - owLeft, event.pageY - wrapTop - owTop,
+                        relX_start, relY_start,
+                        owLeft, owTop, owHeight,
+                        wrapWidth, wrapHeight,
+                        contentWidth, contentHeight,
+                        $iw, $elem, formId,
+                        event.ctrlKey, event.shiftKey
                    );
                 };
 

@@ -28,31 +28,34 @@
 
 <script>
 "use strict";
-console.log(hdemon);
 hdemon.explorizer = exp.core;
 
-var	id	= 0,
-	$wrapper	= $("#wrapper"),
+var	id = 0,
+	$wrapper = $("#wrapper"),
 	explorizer,
-	form = [];
+	$form = [];
 
 // new object creation
 explorizer = hdemon.explorizer;
 
-form[ id ] =
+$form[ id ] =
 	explorizer
 		.set({  // parameters setting. Only "$wrapper" is required.
 			"$wrapper"	: $wrapper	})
-		.add(); // new window-form creation.
+		.add() // new window-form creation.
+        .$content;
 		
-createBox( form[ id ], 10, 5, 100, 240);
+createBox($form[ id ], 10, 5, 100, 240);
 // When you manipulate DOM object in explorizer-form,
 // you must call "initialize" method explicitly for resetting events trigger. 
 explorizer.initialize();
 id++;
 
-form[ id ] = explorizer.add();
-createBox( form[ id ], 15, 2, 100, 240);
+$form[ id ] = explorizer
+    .add()
+    .$content;
+    
+createBox( $form[ id ], 15, 2, 100, 240);
 explorizer.initialize();
 id++;
 
@@ -66,7 +69,7 @@ function createBox($window, n, __h, _s, _b){
     for (var i=0; i< n; i++){
         $window.append(
             "<div " +
-            "class=\"block hdex_elem\" " +
+            "class=\"hdex_elem\" " +
             ">" +
             "</div>"
         );
@@ -107,7 +110,7 @@ function createBox($window, n, __h, _s, _b){
 		g	= Math.floor(g);
 		b	= Math.floor(b);
 		   
-        $(".block:last")
+        $(".hdex_elem:last")
         	.append("<p>" + i + "</p>")
         	.css({ "background" : "rgb(" + [r, g, b].join(",") + ")" });
     }

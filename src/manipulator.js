@@ -73,9 +73,20 @@ manipulator = (function(core, util){
         copyElements_($elem, formId);
         $elem.remove();
     }
-
-    return {
-        manipulate : function (event, formId) {
+    
+    function manipulation_($elem, targetFormId) {
+        if (mode === "copy")        copyElements_($elem, targetFormId);
+        else if (mode === "move")   moveElements_($elem, targetFormId);
+      /*  
+        core.form[ baseFormId ]
+            .numbering();
+        core.form[ targetFormId ]
+            .numbering();
+        core.unselectAllElem();   */         
+    }
+    
+    return {            
+        startDrag : function (event, formId) {
             baseFormId = formId;
             elemNum =
                 core.get$elem("selected", true)
@@ -94,17 +105,13 @@ manipulator = (function(core, util){
         mouseUp : function (targetFormId, callback) {
             var $elem = core.get$elem("selected", true);
 
-            if (active) {
-                if (mode === "copy") copyElements_($elem, targetFormId);
-                else if (mode === "move") moveElements_($elem, targetFormId);
-                
-                callback(baseFormId);
-            }
-
+            if (active) manipulation_($elem, targetFormId);
+            
             targetFormId = null;
             active = false;
-
             this.removeCursor();
+            
+            return $elem;
         },
         
         isActive : function() {

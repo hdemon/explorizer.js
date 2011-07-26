@@ -15,9 +15,9 @@
 }
 
 .hdex_ow {
-    position:    absolute;
+    position:   absolute;
     top:        10px;
-    background:    #fff;
+    background: #fff;
     /*border:     1px dotted #ccc;*/
     border-bottom-right-radius: 10px 10px;
     border-bottom-left-radius: 10px 10px;
@@ -26,8 +26,6 @@
     box-shadow: #666 0px 2px 5px;
     z-index:    0;
 }
-
-
 
 /* bar */
 .hdex_titleBar {
@@ -45,28 +43,29 @@
     z-index:        2;
 }
 
-    .hdex_titleBar_selected {
+    .hdex_titleBar .selected {
         background: #eaffea;
     }
 
-    .hdex_titleBar_unselect {
+    .hdex_titleBar .unselect {
         background: #fff;
     }
 
-    .hdex_titleSpace {
+    .hdex_titleSpc {
         position:    absolute;
-        width:        450px;
         margin:        6px 0 0 15px;
         font-size:    12px;
     }
 
     .hdex_removeBtn {
-        position:    absolute;
-        width:        12px;
-        height:        12px;
-        top:        9px;
-        right:        10px;
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        top: 6px;
+        right: 7px;
         background: url("removewnd.png");
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
 .hdex_iw {
@@ -113,13 +112,13 @@
 }
 
 .hdex_slctBox {
-    position:    absolute;
-    border:        1px solid #e60;
+    position:   absolute;
+    border:     1px solid #e60;
     z-index:    990;
-    background:    #fff0e0;
-    -webkit-opacity:    0.2;
-    -moz-opacity:    0.2;
-    opacity:    0.2;
+    background: #fff0e0;
+    -webkit-opacity:0.2;
+    -moz-opacity:   0.2;
+    opacity:        0.2;
     z-index:    99;
 }
 
@@ -136,10 +135,8 @@
 }
 
 .hdex_resize {
-    position:    absolute;
-    border:        1px solid #ffd9b9;
+    position:   absolute;
 }
-
 
 ::-webkit-scrollbar {
     width: 10px;
@@ -163,7 +160,7 @@
     -moz-border-radius: 6px;
 }
 
-.block {
+.hdex_elem {
     float:             left;
     width:            64px;
     height:            64px;
@@ -176,9 +173,8 @@
     user-select: none;
 }
 
-.block p {
-    margin:            5px;
-    
+.hdex_elem p {
+    margin:         5px;
     font-weight:    bold;
-    color:            #fff;
+    color:          #fff;
 }

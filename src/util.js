@@ -20,12 +20,12 @@ util = (function(core) {
     }
 
     return {
-        browser    : {
-            "chrome"    : (ua.indexOf("Chrome")     !== -1),
-            "firefox"    : (ua.indexOf("Firefox")    !== -1),
-            "ie"        : (ua.indexOf("MSIE")        !== -1),
-            "opera"        : (ua.indexOf("Opera")    !== -1),
-            "safari"    : (ua.indexOf("safari")    !== -1)
+        browser : {
+            "chrome"    : (ua.indexOf("Chrome") !== -1),
+            "firefox"   : (ua.indexOf("Firefox")!== -1),
+            "ie"        : (ua.indexOf("MSIE")   !== -1),
+            "opera"     : (ua.indexOf("Opera")  !== -1),
+            "safari"    : (ua.indexOf("safari") !== -1)
         },
                 
         preventSelect : function() {
@@ -41,27 +41,27 @@ util = (function(core) {
                 .append(
                     "<div " +
                         "class=\""+
-                            core.pref +  name_ +
-                        "\" " +
-                        "id=\""+
-                            core.pref + formId +"_"+ name_ +
+                            core.pref + name_ + " " +
+                            core.pref + core.lb.form + "_" + formId +
                         "\" " +
                         this.preventSelect() +
                     ">" +
                     "</div>"   );
-            return    $("#" + core.pref + formId +"_"+ name_);
+            
+            return $("." + core.pref + core.lb.form + "_" + formId)
+                    .filter("." + core.pref + name_)
         },
 
         parser : function ($target) {
-            var str     = $target.attr("id").split("_"),
-                formId  = str[1]-0,
-                part    = str[2],
-                elemId  = str[3]-0;
-
+            var formId  = $target.attr("class").match(/form_[0-9999]{1,}/)[0].slice(5)-0,
+               // part    = $target.attr("class").match(/elem_[0-9999]/)[0].slice(5),
+                _elemId = $target.attr("class").match(/elem_[0-9999]{1,}/);
+            var elemId  = (_elemId !== null ? _elemId[0].slice(5)-0 : false);
+                    
             return {
                 "formId" : formId,
-                "part"   : part,
-                "elemId" : (typeof elemId !== "undefined") ? elemId : false
+  //              "part"   : part,
+                "elemId" : elemId
             }
         },
             

@@ -62,11 +62,11 @@ aligner = (function(core, util){
                 }
 
                 this.focusedFormId = clicked;
-                if ( typeof callback.changed !== "undefined" ) callback.changed();
+         //       if ( typeof callback.changed !== "undefined" ) callback.changed();
 
             } else {
                 this.focusedFormId = clicked;
-                if ( typeof callback.notChanged !== "undefined" ) callback.notChanged();
+         //       if ( typeof callback.notChanged !== "undefined" ) callback.notChanged();
             }
             
             return    this;
