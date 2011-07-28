@@ -4,4 +4,4 @@
 var hdemon = hdemon || {},
     exp = {};
 
-hdemon.explorizer = {};
+hdemon.explorizer = exp;

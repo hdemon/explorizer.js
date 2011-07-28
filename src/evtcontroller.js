@@ -12,7 +12,7 @@ eventController = (function(core, util){
     function alignment (formId){
         core.mod.aligner
             .setFocus(formId, {
-                "changed" : function() { core.unselectAllElem() }
+                "focusChanged" : function() { core.unselectAllElem(); }
             });
     }
 

@@ -37,7 +37,7 @@ aligner = (function(core, util){
     }
             
     return {               
-        setFocus : function(formId) {                
+        setFocus : function(formId, callback) {                
             var i, l, $ow_rest, prevZindex, zIndex = {};
             
             var focused    = this.focusedFormId,
@@ -60,6 +60,7 @@ aligner = (function(core, util){
                 }
 
                 this.focusedFormId = clicked;
+                callback.focusChanged();
                 core.callback.focusChanged();
 
             } else {
@@ -70,7 +71,7 @@ aligner = (function(core, util){
             return    this;
         }
     }
-}(exp.core, exp.eutil, exp.core.module));
+}(exp.core, exp.eutil));
 
 exp.aligner = aligner;
 })(exp);

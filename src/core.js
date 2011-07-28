@@ -64,22 +64,22 @@ core = (function() {
             
             // callback    
             this.callback    = {
-                manipulated     : args .manipulated     || function () {},
-                selected        : args .selected        || function () {},
-                formRemoved     : args .formRemoved     || function () {},
-                formAdded       : args .formAdded       || function () {},
-                onElement       : args .onElement       || function () {},
-                focusChanged    : args .focusChange     || function () {},
-                focusKeeped     : args .focusKeeped     || function () {},
-                resizingStart   : args .resizingStart   || function () {},
-                resizing        : args .resizing        || function () {},
-                resizingEnded   : args .resizingEnded   || function () {}
+                manipulated     : args .manipulated     || function() {},
+                selected        : args .selected        || function() {},
+                formRemoved     : args .formRemoved     || function() {},
+                formAdded       : args .formAdded       || function() {},
+                onElement       : args .onElement       || function() {},
+                focusChanged    : args .focusChange     || function() {},
+                focusKeeped     : args .focusKeeped     || function() {},
+                resizingStart   : args .resizingStart   || function() {},
+                resizing        : args .resizing        || function() {},
+                resizingEnded   : args .resizingEnded   || function() {}
             };
 
             return this;
         },
 
-        add : function () {
+        add : function() {
             // initialize mods
             if (typeof this.mod === "undefined") initmod.bind(this)();
 
@@ -107,9 +107,38 @@ core = (function() {
                 .initialize();
                                                  
             this.formId++;
-            return { "$content" : _form.$ct, "formId" : formId }
+            return {
+                "$form" : _form.$ow,
+                "$content" : _form.$ct,
+                "formId" : formId
+            }
         },
 
+        convert : function($content) {
+            var isExplorized = $content.is(
+                "." + this.pref + this.lb.content +
+                ",." + this.pref + this.lb.ow
+            );
+            
+            if (isExplorized) {
+                var id = $content.attr("id");
+                
+                var $newContent = $content.children()
+                    .clone(true, true)
+                    .appendTo(this.$wrapper);
+                
+                this.remove(core.parse($content).formId);
+            } else {
+                var id = $content.attr("id"),
+                    $newContent = this.add();
+                
+                $content.children().clone(true, true).appendTo($newContent);
+                $newContent.attr("id", id);
+            }
+ 
+            return $newContent;
+        },
+            
         remove : function(formId) {
             this.form[formId].remove();
         },
@@ -193,7 +222,7 @@ core = (function() {
         preselectElem : function(formId, elemId) { this.form[formId].preselectElem(elemId); },
         unselectElem : function(formId, elemId) { this.form[formId].unselectElem(elemId); },
 
-        unselectAllElem : function () {
+        unselectAllElem : function() {
             $( "." + this.pref + this.lb.elem )
                 .removeClass( this.lb.selected  )
                 .removeClass( this.lb.preselect )

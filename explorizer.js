@@ -9,12 +9,14 @@ var hdemon = hdemon || {},
 
 var aligner;
 aligner = (function(core, util){
+    var callback;
+    
     function getZindex ( $ow ) {
         return $ow
             .css( "z-index" );
     }
 
-    function getMaxZindex ( formObj ) {
+    function getMaxZindex( formObj ) {
         var zIndexArray = [],
             all$ow = core.get$ow( "all" );
         
@@ -28,7 +30,7 @@ aligner = (function(core, util){
         }
     }
 
-    function setZindex ( $ow, val, method ) {
+    function setZindex( $ow, val, method ) {
         var current = $ow.css("z-index")-0;
 
         switch ( method ) {
@@ -40,13 +42,9 @@ aligner = (function(core, util){
                 break;
         };
     }
-
-    function callback ( wrapperObj, handle ) {
-        if ( typeof wrapperObj[handle] !== "undefined" ) return wrapperObj[handle]();
-    }
             
-    return {
-        setFocus : function ( formId, callback ) {                
+    return {               
+        setFocus : function(formId, callback) {                
             var i, l, $ow_rest, prevZindex, zIndex = {};
             
             var focused    = this.focusedFormId,
@@ -55,8 +53,8 @@ aligner = (function(core, util){
 
             // if selected window's id differs with previous active window...
             if ( clicked !== focused ) {
-                zIndex         = getMaxZindex.bind(this)( core.form );
-                prevZindex    = getZindex.bind(this)( $ow );
+                zIndex      = getMaxZindex.bind(this)( core.form );
+                prevZindex  = getZindex.bind(this)( $ow );
 
                 setZindex.bind(this)( $ow, zIndex.max + 1, "set" );
 
@@ -69,17 +67,18 @@ aligner = (function(core, util){
                 }
 
                 this.focusedFormId = clicked;
-         //       if ( typeof callback.changed !== "undefined" ) callback.changed();
+                callback.focusChanged();
+                core.callback.focusChanged();
 
             } else {
                 this.focusedFormId = clicked;
-         //       if ( typeof callback.notChanged !== "undefined" ) callback.notChanged();
+                core.callback.focusKeeped();
             }
             
             return    this;
         }
     }
-}(exp.core, exp.eutil, exp.core.module));
+}(exp.core, exp.eutil));
 
 exp.aligner = aligner;
 })(exp);
@@ -130,7 +129,7 @@ core = (function() {
             // optional --------
             // scroll                                 
             this.autoScroll    = args .autoScroll  ||
-               (exp.util.browser.ie || exp.util.browser.opera);
+               (exp.util.browser.ie || exp.util.browser.opera || exp.util.browser.firefox);
             this.scrollWeight  = args .scrollWeight|| 0.6;
 
             // individual parameter
@@ -150,17 +149,22 @@ core = (function() {
             
             // callback    
             this.callback    = {
-                manipulated     : args .manipulated     || function () {},
-                selected        : args .selected        || function () {},
-                formRemoved     : args .formRemoved     || function () {},
-                formAdded       : args .formAdded       || function () {},
-                onElement       : args .formAdded       || function () {}          
+                manipulated     : args .manipulated     || function() {},
+                selected        : args .selected        || function() {},
+                formRemoved     : args .formRemoved     || function() {},
+                formAdded       : args .formAdded       || function() {},
+                onElement       : args .onElement       || function() {},
+                focusChanged    : args .focusChange     || function() {},
+                focusKeeped     : args .focusKeeped     || function() {},
+                resizingStart   : args .resizingStart   || function() {},
+                resizing        : args .resizing        || function() {},
+                resizingEnded   : args .resizingEnded   || function() {}
             };
 
             return this;
         },
 
-        add : function () {
+        add : function() {
             // initialize mods
             if (typeof this.mod === "undefined") initmod.bind(this)();
 
@@ -188,9 +192,38 @@ core = (function() {
                 .initialize();
                                                  
             this.formId++;
-            return { "$content" : _form.$ct, "formId" : formId }
+            return {
+                "$form" : _form.$ow,
+                "$content" : _form.$ct,
+                "formId" : formId
+            }
         },
 
+        convert : function($content) {
+            var isExplorized = $content.is(
+                "." + this.pref + this.lb.content +
+                ",." + this.pref + this.lb.ow
+            );
+            
+            if (isExplorized) {
+                var id = $content.attr("id");
+                
+                var $newContent = $content.children()
+                    .clone(true, true)
+                    .appendTo(this.$wrapper);
+                
+                this.remove(core.parse($content).formId);
+            } else {
+                var id = $content.attr("id"),
+                    $newContent = this.add();
+                
+                $content.children().clone(true, true).appendTo($newContent);
+                $newContent.attr("id", id);
+            }
+ 
+            return $newContent;
+        },
+            
         remove : function(formId) {
             this.form[formId].remove();
         },
@@ -274,7 +307,7 @@ core = (function() {
         preselectElem : function(formId, elemId) { this.form[formId].preselectElem(elemId); },
         unselectElem : function(formId, elemId) { this.form[formId].unselectElem(elemId); },
 
-        unselectAllElem : function () {
+        unselectAllElem : function() {
             $( "." + this.pref + this.lb.elem )
                 .removeClass( this.lb.selected  )
                 .removeClass( this.lb.preselect )
@@ -322,7 +355,7 @@ eventController = (function(core, util){
     function alignment (formId){
         core.mod.aligner
             .setFocus(formId, {
-                "changed" : function() { core.unselectAllElem() }
+                "focusChanged" : function() { core.unselectAllElem(); }
             });
     }
 
@@ -609,14 +642,8 @@ manipulator = (function(core, util){
     }
     
     function manipulation_($elem, targetFormId) {
-        if (mode === "copy")        copyElements_($elem, targetFormId);
-        else if (mode === "move")   moveElements_($elem, targetFormId);
-      /*  
-        core.form[ baseFormId ]
-            .numbering();
-        core.form[ targetFormId ]
-            .numbering();
-        core.unselectAllElem();   */         
+        if      (mode === "copy")   copyElements_($elem, targetFormId);
+        else if (mode === "move")   moveElements_($elem, targetFormId);    
     }
     
     return {            
@@ -1394,48 +1421,6 @@ titleBar = (function(core, util){
 exp.titleBar = titleBar;
 })(exp);
 
-﻿(function(explorizer) {
-
-var util;
-util = (function() {
-    function delayTrigger ( event, startX, startY, threshold, removeTrigDelayer, callback ) {
-        // calculate torelance range.
-        var outOfRange = (
-            Math.sqrt(
-                Math.pow( ( event.pageX - startX ), 2 ) +
-                Math.pow( ( event.pageY - startY ), 2 ) 
-            ) > threshold
-        );
-
-        if ( outOfRange ) {
-            removeTrigDelayer();
-            callback();
-        }
-    }
-
-    return {
-        setTrigDelayer : function ( startX, startY, torelance, callback ) {
-            this.mouseMove_delayer = function ( event ) {
-                delayTrigger(
-                    event,
-                    startX, startY,
-                    torelance,
-                    this.removeTrigDelayer,
-                    callback
-                );
-            };
-            $(window).bind( "mousemove", this.mouseMove_delayer.bind(this) );
-        },
-
-        removeTrigDelayer : function ( event ) {
-            $(window).unbind( "mousemove" );
-        }
-    }
-}());
-
-explorizer.util = util;
-})(explorizer);
-
 ﻿(function(exp) {
 
 var util;
@@ -1488,19 +1473,6 @@ util = (function(core) {
             
             return $("." + core.pref + core.lb.form + "_" + formId)
                     .filter("." + core.pref + name_)
-        },
-
-        parser : function ($target) {
-            var formId  = $target.attr("class").match(/form_[0-9999]{1,}/)[0].slice(5)-0,
-               // part    = $target.attr("class").match(/elem_[0-9999]/)[0].slice(5),
-                _elemId = $target.attr("class").match(/elem_[0-9999]{1,}/);
-            var elemId  = (_elemId !== null ? _elemId[0].slice(5)-0 : false);
-                    
-            return {
-                "formId" : formId,
-  //              "part"   : part,
-                "elemId" : elemId
-            }
         },
             
         setTrigDelayer : function (startX, startY, torelance, callback) {
@@ -1636,11 +1608,20 @@ windowForm = (function(core, util) {
                         "zIndex"        : 3,
                         "angleHandleSize": 25,
                         "maxY" :  600 ,
-                        "end"           : function() { fitCtSize(this.$ct, this.$iw) }.bind(this),
                         "start"         : function() {
                             resetCtSize(this.$ct);
                             core.mod.aligner
                                 .setFocus(this.formId);
+                            core.callback.resizingStart();
+                        }.bind(this),
+                        /* too decrease rendering speed.
+                        "resizing"      : function() {
+                            core.callback.resizing();
+                        }.bind(this),
+                        */
+                        "end"           : function() {
+                            fitCtSize(this.$ct, this.$iw)
+                            core.callback.resizingEnded();                            
                         }.bind(this),
                         "wrapper"       : $("#wrapper")    })
                     .add(this.$ow);
@@ -1745,6 +1726,7 @@ exp.windowForm = windowForm;
 })(exp);
 
 
+window.hdemon = window.hdemon || {};
 window.hdemon.explorizer = exp.core;
 })(window);
 ﻿
