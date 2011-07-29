@@ -8,7 +8,7 @@
 
 	<body>
 		<div id="wrapper">
-            <div id="a">
+            <div id="a" style="position:absolute">
             </div>
         </div>
 	</body>
@@ -63,16 +63,23 @@ id++;
 
 
 
-createBox( $("#a"), 15, 2, 100, 240);
+createBox( $("#a"), 15, 3, 100, 240);
 
 $form[ id ] =
 	hdemon.explorizer
-		.set({  // parameters setting. Only "$wrapper" is required.
-			"$wrapper"	: $("#wrapper")	})
 		.convert($("#a")) // new window-form creation.
         .$content;
 hdemon.explorizer.initialize();
-       
+
+hdemon.explorizer
+    .convert($form[ id ]) // new window-form creation.
+hdemon.explorizer.initialize();
+      
+$form[ id ] =
+	hdemon.explorizer
+		.convert($("#a")) // new window-form creation.
+hdemon.explorizer.initialize();  
+            
 // グラデーション付き要素作成
 // 以下の記事を参考にさせて頂きました。
 // http://www13.plala.or.jp/kymats/study/gazou/HSB/HSB.html

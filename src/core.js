@@ -12,6 +12,13 @@ core = (function() {
         };
         this.formId = 0;
         this.form  = [];
+        
+        $("body").append("<div id=\"hdex_secretRepo\"></div>");
+        this.$secretRepo = $("#hdex_secretRepo");
+        this.$secretRepo
+            .css({ "display" : "hidden" });
+        
+        this.initialized = true;
     }
 
     return {
@@ -119,26 +126,44 @@ core = (function() {
                 "." + this.pref + this.lb.content +
                 ",." + this.pref + this.lb.ow
             );
+            console.log($content);
             
-            if (isExplorized) {
-                var id = $content.attr("id");
+            if (isExplorized) {                
+                var $oldElem, $oldElemClone, $wrapperElement, formId;
                 
-                var $newContent = $content.children()
-                    .clone(true, true)
-                    .appendTo(this.$wrapper);
+                formId = this.parse($content).formId;
+                $oldElemClone = this.form[formId].getOldElemInfo();
+                $oldElem = $oldElemClone.clone(true, true)
+             
+                $oldElem
+                   .appendTo(this.$wrapper);
                 
-                this.remove(core.parse($content).formId);
-            } else {
-                var id = $content.attr("id"),
-                    newForm = this.add(),
-                    $newContent = newForm.$content;
+                $content.children()
+                   .appendTo($oldElem);                    
+             
+                $oldElemClone.remove();
+                this.form[formId].get$ow().remove();
                 
+                return $oldElem;
+            } else {             
+                var $oldElem, newForm;
+                
+                $oldElem = $content.clone(true, true);
+                $oldElem.children().remove();
+                $oldElem.appendTo(this.$secretRepo);
+   console.log($oldElem);                 
+                                                 
+                newForm = this.add(),
+                $newContent = newForm.$content;
+
+                this.form[newForm.formId].setOldElemInfo($oldElem);
+                                
                 $content.children().clone(true, true).appendTo($newContent);
                 $content.remove();
                 $newContent.attr("id", id);
+    
+                return newForm;
             }
- 
-            return newForm;
         },
             
         remove : function(formId) {

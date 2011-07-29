@@ -155,7 +155,15 @@ windowForm = (function(core, util) {
                 delete this;
                 core.callback.formRemoved();
             },
+             
+            setOldElemInfo : function(elemInfo) {
+                this.elemInfo = elemInfo;
+            },
 
+            getOldElemInfo : function(elemInfo) {
+                return this.elemInfo;
+            },
+                
             getFormId : function() { return this.formId; },
             get$ow : function() { return this.$ow; },
             get$iw : function() { return this.$iw; },
