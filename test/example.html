@@ -7,7 +7,10 @@
 	</head>
 
 	<body>
-		<div id="wrapper"></div>
+		<div id="wrapper">
+            <div id="a">
+            </div>
+        </div>
 	</body>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
@@ -30,16 +33,14 @@
 "use strict";
 hdemon.explorizer = exp.core;
 
+
 var	id = 0,
 	$wrapper = $("#wrapper"),
 	explorizer,
 	$form = [];
 
-// new object creation
-explorizer = hdemon.explorizer;
-
 $form[ id ] =
-	explorizer
+	hdemon.explorizer
 		.set({  // parameters setting. Only "$wrapper" is required.
 			"$wrapper"	: $wrapper	})
 		.add() // new window-form creation.
@@ -48,28 +49,40 @@ $form[ id ] =
 createBox($form[ id ], 10, 5, 100, 240);
 // When you manipulate DOM object in explorizer-form,
 // you must call "initialize" method explicitly for resetting events trigger. 
-explorizer.initialize();
+hdemon.explorizer.initialize();
 id++;
 
-$form[ id ] = explorizer
-    .add()
-    .$content;
+$form[ id ] =
+	hdemon.explorizer
+        .add()
+        .$content;
     
 createBox( $form[ id ], 15, 2, 100, 240);
-explorizer.initialize();
+hdemon.explorizer.initialize();
 id++;
 
 
+
+createBox( $("#a"), 15, 2, 100, 240);
+
+$form[ id ] =
+	hdemon.explorizer
+		.set({  // parameters setting. Only "$wrapper" is required.
+			"$wrapper"	: $("#wrapper")	})
+		.convert($("#a")) // new window-form creation.
+        .$content;
+hdemon.explorizer.initialize();
+       
 // グラデーション付き要素作成
 // 以下の記事を参考にさせて頂きました。
 // http://www13.plala.or.jp/kymats/study/gazou/HSB/HSB.html
-function createBox($window, n, __h, _s, _b){
+function createBox($form, n, __h, _s, _b){
     var	_h, r, g, b;
     
     for (var i=0; i< n; i++){
-        $window.append(
+        $form.append(
             "<div " +
-            "class=\"hdex_elem\" " +
+            "class=\"hdex_elem\"" +
             ">" +
             "</div>"
         );
@@ -110,7 +123,7 @@ function createBox($window, n, __h, _s, _b){
 		g	= Math.floor(g);
 		b	= Math.floor(b);
 		   
-        $(".hdex_elem:last")
+        $form.children(".hdex_elem:last")
         	.append("<p>" + i + "</p>")
         	.css({ "background" : "rgb(" + [r, g, b].join(",") + ")" });
     }

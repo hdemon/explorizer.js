@@ -150,7 +150,14 @@ eventController = (function(core, util){
             document.addEventListener   ("keydown",    handle.keyDown, false);
             document.removeEventListener("keyup",      handle.keyDown, false);
             document.addEventListener   ("keyup",      handle.keyDown, false);
-        }
+        },
+        
+        alignment : function(formId){
+            core.mod.aligner
+                .setFocus(formId, {
+                    "focusChanged" : function() { core.unselectAllElem(); }
+                });
+        }        
     }
 }(exp.core, exp.util));
 

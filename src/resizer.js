@@ -32,21 +32,21 @@ resizer = (function(util) {
                     divY        = this.prevTop - nowTop,
                     _height     = (this.height - this.borderHeight) + divY,
                     accTerm     = (nowTop + this.topGap < 0),
-                    attMax      = (_height > this.limit.maxY),
-                    attMin      = (_height < this.limit.minY),
-                    priority    = ( (this.prevBottom - this.limit.maxY) > 0 );
+                    attMax      = (_height > this.limit.maxHeight),
+                    attMin      = (_height < this.limit.minHeight),
+                    priority    = ( (this.prevBottom - this.limit.maxHeight) > 0 );
 
                 if (accTerm || attMax) {
                     if (priority) {
-                        top     = this.prevBottom - this.limit.maxY;// - this.divY_Hnd_top;
+                        top     = this.prevBottom - this.limit.maxHeight;// - this.divY_Hnd_top;
                         height  = this.height - this.borderHeight - (top - this.prevTop);
                     } else if (nowTop + this.topGap < 0) {
                         top     = 0 - this.topGap;
                         height  = this.height - this.borderHeight - (top - this.prevTop);
                     }
                 } else if (attMin) {
-                    top     = this.prevBottom - this.limit.minY - this.borderHeight;// - this.divY_Hnd_top;
-                    height  = this.limit.minY;
+                    top     = this.prevBottom - this.limit.minHeight - this.borderHeight;// - this.divY_Hnd_top;
+                    height  = this.limit.minHeight;
                 } else {
                     top     = nowTop;
                     height  = this.height - this.borderHeight - (top - this.prevTop);
@@ -75,15 +75,15 @@ resizer = (function(util) {
                     divY        = nowTop - this.prevBottom,
                     _height     = (this.height - this.borderHeight) + divY,
                     accTerm     = (nowTop > this.wrap.height),
-                    attMax      = (_height > this.limit.maxY),
-                    attMin      = (_height < this.limit.minY),
-                    priority    = ( (this.prevTop + this.limit.maxY) < this.wrap.height );
+                    attMax      = (_height > this.limit.maxHeight),
+                    attMin      = (_height < this.limit.minHeight),
+                    priority    = ( (this.prevTop + this.limit.maxHeight) < this.wrap.height );
 
                 if (accTerm || attMax) {
-                    if (priority)   height = this.limit.maxY;
+                    if (priority)   height = this.limit.maxHeight;
                     else            height = this.wrap.height - this.prevTop;
                 } else 
-                    if (attMin)     height = this.limit.minY;
+                    if (attMin)     height = this.limit.minHeight;
                     else            height = _height;
 
                 return { "height" : height };
@@ -112,21 +112,21 @@ resizer = (function(util) {
                     divX        = this.prevLeft - nowLeft,
                     _width      = (this.width - this.borderWidth) + divX,
                     accTerm     = (nowLeft + this.leftGap < 0),
-                    attMax      = (_width > this.limit.maxX),
-                    attMin      = (_width < this.limit.minX),
-                    priority    = ( (this.prevRight - this.limit.maxX) > 0 );
+                    attMax      = (_width > this.limit.maxWidth),
+                    attMin      = (_width < this.limit.minWidth),
+                    priority    = ( (this.prevRight - this.limit.maxWidth) > 0 );
 
                 if (accTerm || attMax) {
                     if (priority) {
-                        left    = this.prevRight - this.limit.maxX;// - this.divX_Hnd_left;
+                        left    = this.prevRight - this.limit.maxWidth;// - this.divX_Hnd_left;
                         width   = this.width - this.borderWidth - (left - this.prevLeft);
                     } else if (nowLeft + this.leftGap < 0) {
                         left    = 0 - this.leftGap;
                         width   = this.width - this.borderWidth - (left - this.prevLeft);
                     }
                 } else if (attMin) {
-                    left    = this.prevRight - this.limit.minX - this.borderWidth;// - this.divX_Hnd_left;
-                    width   = this.limit.minX;
+                    left    = this.prevRight - this.limit.minWidth - this.borderWidth;// - this.divX_Hnd_left;
+                    width   = this.limit.minWidth;
                 } else {
                     left    = nowLeft;
                     width   = this.width - this.borderWidth - (left - this.prevLeft);
@@ -155,15 +155,15 @@ resizer = (function(util) {
                     divX        = nowLeft - this.prevRight,
                     _width      = (this.width - this.borderHeight) + divX,
                     accTerm     = (nowLeft > this.wrap.width),
-                    attMax      = (_width > this.limit.maxX),
-                    attMin      = (_width < this.limit.minX),
-                    priority    = ( (this.prevLeft + this.limit.maxX) < this.wrap.width );
+                    attMax      = (_width > this.limit.maxWidth),
+                    attMin      = (_width < this.limit.minWidth),
+                    priority    = ( (this.prevLeft + this.limit.maxWidth) < this.wrap.width );
 
                 if (accTerm || attMax) {
-                    if (priority)   width = this.limit.maxX;
+                    if (priority)   width = this.limit.maxWidth;
                     else            width = this.wrap.width - this.prevLeft;
                 } else 
-                    if (attMin)     width = this.limit.minX;
+                    if (attMin)     width = this.limit.minWidth;
                     else            width = _width;
 
                 return { "width" : width };
@@ -300,7 +300,7 @@ resizer = (function(util) {
                         "id=\"" +
                             this.clsName +"_"+ angle +"_"+ this.id +
                         "\" " +
-                        util.preventSelect +
+                        exp.util.preventSelect +
                     ">" +
                     "</div>"
                 );
@@ -339,10 +339,10 @@ resizer = (function(util) {
                 this.topGap     = (typeof args .topGap !== "number")    ? 0 : args.topGap,
                 this.bottomGap  = (typeof args .bottomGap !== "number") ? 0 : args.bottomGap
                 this.limit      = {
-                    maxX    : args .maxX,
-                    maxY    : args .maxY,
-                    minX    : (typeof args.minX !== "number") ? 50 : args.minX,
-                    minY    : (typeof args.minY !== "number") ? 50 : args.minY
+                    maxWidth    : (typeof args.maxWidth !== "number") ? 9999  : args.maxWidth,
+                    maxHeight   : (typeof args.maxHeight !== "number") ? 9999 : args.maxHeight,
+                    minWidth    : (typeof args.minWidth !== "number") ? 50  : args.minWidth,
+                    minHeight   : (typeof args.minHeight !== "number") ? 50 : args.minHeight
                 };
 
                 this.callback    = {

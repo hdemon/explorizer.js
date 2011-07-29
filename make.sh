@@ -3,15 +3,28 @@
 rm explorizer.js
 
 cd src
-for file in `ls *.js`
-do
-echo $file
-	cat $file >> core
-	echo $'\r' >> core
-done
 
-cat intro core outro >> ../explorizer.js
+#for file in `ls *.js`
+#do
+#echo $file
+#	cat $file >> core
+#	echo $'\r' >> core
+#done
 
-rm core
+
+cat core.js         >> code
+cat util.js         >> code
+cat resizer.js      >> code
+cat aligner.js      >> code
+cat selector.js     >> code
+cat manipulator.js  >> code
+cat titlebar.js     >> code
+cat locator.js      >> code
+cat evtcontroller.js>> code
+cat wform.js        >> code
+
+cat intro code outro >> ../explorizer.js
+
+rm code
 
 cd ..

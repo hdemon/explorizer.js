@@ -108,11 +108,20 @@ windowForm = (function(core, util) {
                         "leftGap"       : 5,
                         "zIndex"        : 3,
                         "angleHandleSize": 25,
-                        "maxY" :  600 ,
+                        "maxWidth"          : core.maxWidth,
+                        "maxHeight"          : core.maxHeight,
+                        "minWidth"          : core.minWidth,
+                        "minHeight"          : core.minHeight,
                         "start"         : function() {
                             resetCtSize(this.$ct);
+                            core.mod.eventController
+                                .alignment(this.formId);
+                            /*
                             core.mod.aligner
-                                .setFocus(this.formId);
+                                .setFocus(formId, {
+                                    "focusChanged" : function() { core.unselectAllElem(); }
+                                });
+                            */
                             core.callback.resizingStart();
                         }.bind(this),
                         /* too decrease rendering speed.

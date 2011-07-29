@@ -2,7 +2,7 @@
 
 var core;
 core = (function() {
-    function initmod () {
+    function init_ () {
         this.mod = {
             eventController : exp .eventController,
             aligner     : exp .aligner,
@@ -10,7 +10,7 @@ core = (function() {
             manipulator : exp .manipulator,
             locator     : exp .locator
         };
-        this.formId = id;
+        this.formId = 0;
         this.form  = [];
     }
 
@@ -51,8 +51,8 @@ core = (function() {
             // style
             this.width         = (typeof args .width      === "undefined")  ? 300   : args .width;    // initial value
             this.height        = (typeof args .height     === "undefined")  ? 400   : args .height;    // do.
-            this.minWidth      = (typeof args .minWidth   === "undefined")  ? 300   : args .minWidth;
-            this.minHeight     = (typeof args .minHeight  === "undefined")  ? 400   : args .minHeight;
+            this.minWidth      = (typeof args .minWidth   === "undefined")  ? 50   : args .minWidth;
+            this.minHeight     = (typeof args .minHeight  === "undefined")  ? 50   : args .minHeight;
             this.maxWidth      = (typeof args .maxWidth   === "undefined")  ? null  : args .maxWidth;
             this.maxHeight     = (typeof args .maxHeight  === "undefined")  ? null  : args .maxHeight;
           
@@ -81,7 +81,7 @@ core = (function() {
 
         add : function() {
             // initialize mods
-            if (typeof this.mod === "undefined") initmod.bind(this)();
+            if (typeof this.mod === "undefined") init_.bind(this)();
 
             // create form object. This contains $ objects mainly.
 
@@ -130,13 +130,15 @@ core = (function() {
                 this.remove(core.parse($content).formId);
             } else {
                 var id = $content.attr("id"),
-                    $newContent = this.add();
+                    newForm = this.add(),
+                    $newContent = newForm.$content;
                 
                 $content.children().clone(true, true).appendTo($newContent);
+                $content.remove();
                 $newContent.attr("id", id);
             }
  
-            return $newContent;
+            return newForm;
         },
             
         remove : function(formId) {

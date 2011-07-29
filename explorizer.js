@@ -5,84 +5,6 @@
 var hdemon = hdemon || {},
     exp = {};
 ﻿
-(function(exp){
-
-var aligner;
-aligner = (function(core, util){
-    var callback;
-    
-    function getZindex ( $ow ) {
-        return $ow
-            .css( "z-index" );
-    }
-
-    function getMaxZindex( formObj ) {
-        var zIndexArray = [],
-            all$ow = core.get$ow( "all" );
-        
-        for ( var i = 0, l = all$ow.length; i < l; i++) {
-            zIndexArray.push( getZindex( all$ow.eq( i ) ) );
-        }
-        
-        return {
-            "max" : Math.max.apply( null, zIndexArray ),
-            "min" : Math.min.apply( null, zIndexArray )
-        }
-    }
-
-    function setZindex( $ow, val, method ) {
-        var current = $ow.css("z-index")-0;
-
-        switch ( method ) {
-            case "assign":
-                $ow.css({ "z-index":  current + val    });
-                break;
-            case "set":
-                $ow.css({ "z-index":  val });
-                break;
-        };
-    }
-            
-    return {               
-        setFocus : function(formId, callback) {                
-            var i, l, $ow_rest, prevZindex, zIndex = {};
-            
-            var focused    = this.focusedFormId,
-                clicked    = formId,
-                $ow        = core.form[formId].get$ow();
-
-            // if selected window's id differs with previous active window...
-            if ( clicked !== focused ) {
-                zIndex      = getMaxZindex.bind(this)( core.form );
-                prevZindex  = getZindex.bind(this)( $ow );
-
-                setZindex.bind(this)( $ow, zIndex.max + 1, "set" );
-
-                for ( var restId in core.form ) {
-                    $ow_rest = core.form[restId-0].get$ow();
-                    
-                    if ( getZindex.bind(this)( $ow_rest ) > prevZindex ) {
-                        setZindex.bind(this)( $ow_rest, -1, "assign" );
-                    }
-                }
-
-                this.focusedFormId = clicked;
-                callback.focusChanged();
-                core.callback.focusChanged();
-
-            } else {
-                this.focusedFormId = clicked;
-                core.callback.focusKeeped();
-            }
-            
-            return    this;
-        }
-    }
-}(exp.core, exp.eutil));
-
-exp.aligner = aligner;
-})(exp);
-
 ﻿(function(exp) {
 
 var core;
@@ -136,8 +58,8 @@ core = (function() {
             // style
             this.width         = (typeof args .width      === "undefined")  ? 300   : args .width;    // initial value
             this.height        = (typeof args .height     === "undefined")  ? 400   : args .height;    // do.
-            this.minWidth      = (typeof args .minWidth   === "undefined")  ? 300   : args .minWidth;
-            this.minHeight     = (typeof args .minHeight  === "undefined")  ? 400   : args .minHeight;
+            this.minWidth      = (typeof args .minWidth   === "undefined")  ? 50   : args .minWidth;
+            this.minHeight     = (typeof args .minHeight  === "undefined")  ? 50   : args .minHeight;
             this.maxWidth      = (typeof args .maxWidth   === "undefined")  ? null  : args .maxWidth;
             this.maxHeight     = (typeof args .maxHeight  === "undefined")  ? null  : args .maxHeight;
           
@@ -340,358 +262,81 @@ core = (function() {
 
 exp.core = core;
 })(exp);
+﻿(function(exp) {
 
-(function(exp){
-
-var eventController;
-eventController = (function(core, util){
-    var handle,
-        $window = $(window),
-        callback,
-        targetFormId,
-        baseFormId;
+var util;
+util = (function(core) {
+    var ua = navigator.userAgent;
     
-    // method
-    function alignment (formId){
-        core.mod.aligner
-            .setFocus(formId, {
-                "focusChanged" : function() { core.unselectAllElem(); }
-            });
-    }
+    function delayTrigger (event, startX, startY, threshold, removeTrigDelayer, callback) {
+        // calculate torelance range.
+        var outOfRange = (
+            Math.sqrt(
+                Math.pow((event.pageX - startX), 2) +
+                Math.pow((event.pageY - startY), 2) 
+           ) > threshold
+       );
 
-    function mouseDown_elem (event, formId, elemId) {
-        alignment(formId);
-        baseFormId = formId;
-      
-        core.mod.selector
-            .onElem(event.ctrlKey, event.shiftKey, formId, elemId, {
-                downOnSelected  : startDrag,
-                selectWithShift : startDrag,
-                preselectByCtrl : startDrag,
-                preselect       : startDrag
-            });
-
-        function startDrag(){ core.mod.manipulator.startDrag(event, baseFormId); };
-    }
-
-    function mouseDown_content (event, formId, part, elemId) {
-        alignment(formId);
-
-        core.mod.selector
-            .onBack(event.pageX, event.pageY, formId);
-    }
-
-    function mouseDown_titleBar (event, formId) {
-        alignment(formId);
-
-        core.mod.locator
-            .mouseDown(
-                event.pageX, event.pageY, 
-                core.get$ow(formId), core.get$titleBar(formId));
-    }
-
-    function mouseUp_slctPhase (event) {
-        $window
-            .unbind("mousemove");
-        core.mod.selector
-            .mouseUp();
-
-        core.selectPropery();
-    }
-    
-    function mouseUp_termPhase () {
-        core.mod.manipulator.removeCursor();
+        if (outOfRange) {
+            removeTrigDelayer();
+            callback();
+        }
     }
 
     return {
-        set : function(args){
-            callback = args. callback || function(){};
-            return this;
+        browser : {
+            "chrome"    : (ua.indexOf("Chrome") !== -1),
+            "firefox"   : (ua.indexOf("Firefox")!== -1),
+            "ie"        : (ua.indexOf("MSIE")   !== -1),
+            "opera"     : (ua.indexOf("Opera")  !== -1),
+            "safari"    : (ua.indexOf("safari") !== -1)
         },
-            
-        initialize : function() {
-            var self = this;
-            targetFormId = null;
-            
-            handle = handle || {
-                mouseDown_elem : function(event) {
-                    var p = core.parse($(this));
-
-                    event.stopPropagation();
-                    mouseDown_elem(event, p.formId, p.elemId);
-                },
-
-                mouseDown_content : function(event) {
-                    var p = core.parse($(this));
-
-                    event.stopPropagation();
-                    mouseDown_content(event, p.formId, p.part, p.elemId);
-                },
-
-                mouseDown_titleBar : function(event) {
-                    var p = core.parse($(this));
-
-                    event.stopPropagation();
-                    mouseDown_titleBar(event, p.formId);
-                },
-                    
-                mouseUp : function(event) {
-                    event.stopPropagation();
-
-                    mouseUp_slctPhase(event);
-
-                    if (core.mod.manipulator.isActive()) {
-                        // wait to acquire targetFormId ------
-                        var timer = setInterval(function() {
-                        if (targetFormId !== null) { clearInterval(timer); 
-                        // -----------------------------------
-                        core.mod.manipulator.mouseUp(targetFormId);
-                        mouseUp_termPhase(event);
-                        callback();
-                     //   self.initialize();
-                        // logic ends-------------------------
-                        }}, 1);
-                        // -----------------------------------
-                    } else {
-                        mouseUp_termPhase(event);
-                    }
-                },
-
-                mouseUp_content : function(event) {
-                     targetFormId = core.parse($(this)).formId;
-                },
-
-                keyDown : function(event) {
-                    core.mod.manipulator.setCurStatus(event.ctrlKey);
-                },
-
-                keyUp : function(event) {
-                    core.mod.manipulator.setCurStatus(event.ctrlKey);
-                }
-            };
-            
-            core.get$elem("all")
-                .unbind  ("mousedown")
-                .bind    ("mousedown", handle.mouseDown_elem);
-
-            core.get$ct("all")
-                .unbind  ("mousedown")
-                .bind    ("mousedown", handle.mouseDown_content)
                 
-                .unbind  ("mouseup")
-                .bind    ("mouseup",   handle.mouseUp_content);
-
-            core.get$titleBar("all")
-                .unbind  ("mousedown")
-                .bind    ("mousedown", handle.mouseDown_titleBar);
-
-            $window
-                .unbind  ("mouseup")
-                .bind    ("mouseup",   handle.mouseUp);
-
-            document.removeEventListener("keydown",    handle.keyDown, false);
-            document.addEventListener   ("keydown",    handle.keyDown, false);
-            document.removeEventListener("keyup",      handle.keyDown, false);
-            document.addEventListener   ("keyup",      handle.keyDown, false);
-        }
-    }
-}(exp.core, exp.util));
-
-exp.eventController = eventController;
-})(exp);
-
-(function(exp){
-
-var locator;
-locator = (function(core, util){
-    var ehandle;
-    
-    function calc() {
-    }
-    
-    function mouseMove ($ow, owWidth, owHeight, wrapWidth, wrapHeight, tBarHeight, x, y) {
-        var _x, _y;
+        preventSelect : function() {
+            return (
+                this.browser.ie || this.browser.firefox
+                    ? "onmousemove=\"window.getSelection().removeAllRanges();\"" 
+                    : ""
+           )
+        },
         
-        // calculate and limit range.
-        if (x + owWidth > wrapWidth)
-            _x = wrapWidth - owWidth;
-        else if (x < 0)
-            _x = 0;
-        else
-            _x = x;   
-        
-        if (y + owHeight > wrapHeight)
-            _y = wrapHeight - owHeight;
-        else if (y - tBarHeight < 0)
-            _y = tBarHeight;
-        else
-            _y = y;    
-        
-        $ow
-            .css({
-                "top"  : _y,
-                "left" : _x });
-    }  
-                        
-    return {
-        mouseDown : function (x, y, $ow, $titleBar) {
-            var pos         = $ow.position(),
-                prevLeft    = pos.left,
-                prevTop     = pos.top,
-                divX        = x - prevLeft, // divasion from handle central axis. 
-                divY        = y - prevTop,    // divasion from handle central axis. 
-                wrapWidth   = core.get$wrapper().width(),
-                wrapHeight  = core.get$wrapper().height(),
-                owWidth     = $ow.width(),
-                owHeight    = $ow.height(),
-                tBarHeight  = $titleBar.height();                   
-
-            ehandle = function(event) {
-                //event.stopPropagation();
-                mouseMove(
-                    $ow,                    
-                    owWidth, owHeight,
-                    wrapWidth, wrapHeight,
-                    tBarHeight,
-                    event.pageX - divX, event.pageY - divY );
-            };
-            
-            $(window)
-                .bind( "mousemove", ehandle );
-        }
-    }
-}(exp.core, exp.eutil));
-
-exp.locator = locator;
-})(exp);
-
-(function(exp){
-
-var manipulator;
-manipulator = (function(core, util){
-    var $cursor,           
-        active      = false, 
-        baseFormId,
-        elemNum,
-        mode;
-    
-    function dragElement_(event) {
-        setCurStatus_(event.ctrlKey);
-        displayCursor_(event.pageX, event.pageY);
-    }
-
-    function setCurStatus_(ctrlKey) {
-        var newClass =
-            ctrlKey 
-                ? (core.lb.cursor_copy)
-                : (core.lb.cursor_move);
-
-        if ($cursor != null){
-            $cursor
-                .removeClass(core.lb.cursor_copy)
-                .removeClass(core.lb.cursor_move)
-                .addClass(newClass);
-        }
-
-        mode = (ctrlKey) ? "copy" : "move"; 
-    }
-
-    function displayCursor_(x, y) {
-        $cursor
-            .css({
-                "top"    : y,
-                "left"    : x
-            })
-            .children()
-            .text(elemNum);
-    }
-
-    function createCursor_() {
-        $("body")
-            .append(
-                "<div " +
-                    "id=\""+
-                        core.pref + core.lb.cursor +
-                    "\" " +
-                    "class=\""+
-                        core.lb.cursor_move +
-                    "\"" +
-                    util.preventSelect() +
-                ">" +
+        createDiv : function($target, name_, formId) {
+            $target
+                .append(
                     "<div " +
-                        "id=\""+
-                            core.pref + core.lb.cursor_text +
-                        "\"" +
-                        util.preventSelect() +
+                        "class=\""+
+                            core.pref + name_ + " " +
+                            core.pref + core.lb.form + "_" + formId +
+                        "\" " +
+                        this.preventSelect() +
                     ">" +
-                    "</div>" +
-                "</div>"
-           );    
+                    "</div>"   );
             
-        return $("#" + core.pref + core.lb.cursor);
-    }
-
-    function copyElements_($elem, formId) {
-        core.get$ct(formId)
-            .append($elem.clone());
-    }
-
-    function moveElements_($elem, formId) {
-        copyElements_($elem, formId);
-        $elem.remove();
-    }
-    
-    function manipulation_($elem, targetFormId) {
-        if      (mode === "copy")   copyElements_($elem, targetFormId);
-        else if (mode === "move")   moveElements_($elem, targetFormId);    
-    }
-    
-    return {            
-        startDrag : function (event, formId) {
-            baseFormId = formId;
-            elemNum =
-                core.get$elem("selected", true)
-                    .size();
-
-            util.setTrigDelayer(event.pageX, event.pageY, 18, callback);
+            return $("." + core.pref + core.lb.form + "_" + formId)
+                    .filter("." + core.pref + name_)
+        },
             
-            function callback() {
-                $cursor= createCursor_();
-                $(window)
-                    .bind("mousemove", dragElement_);
-                active = true;
-            }
+        setTrigDelayer : function (startX, startY, torelance, callback) {
+            this.mouseMove_delayer = function (event) {
+                delayTrigger(
+                    event,
+                    startX, startY,
+                    torelance,
+                    this.removeTrigDelayer,
+                    callback
+               );
+            };
+            $(window).bind("mousemove", this.mouseMove_delayer.bind(this));
         },
 
-        mouseUp : function (targetFormId, callback) {
-            var $elem = core.get$elem("selected", true);
-
-            if (active) manipulation_($elem, targetFormId);
-            
-            targetFormId = null;
-            active = false;
-            this.removeCursor();
-            
-            return $elem;
-        },
-        
-        isActive : function() {
-            return active;
-        },
-        
-        setCurStatus : function (ctrlKey) {
-            setCurStatus_(ctrlKey);
-        },
-        
-        removeCursor : function () {
-            if (typeof $cursor !== "undefined") $cursor.remove();
+        removeTrigDelayer : function (event) {
+            $(window).unbind("mousemove");
         }
-    }    
-}(exp.core, exp.util, exp.core.mod));
+    }
+}(exp.core));
 
-exp.manipulator = manipulator;
+exp.util = util;
 })(exp);
-
 (function(exp) {
 
 var resizer;
@@ -994,7 +639,7 @@ resizer = (function(util) {
                         "id=\"" +
                             this.clsName +"_"+ angle +"_"+ this.id +
                         "\" " +
-                        util.preventSelect +
+                        exp.util.preventSelect +
                     ">" +
                     "</div>"
                 );
@@ -1072,6 +717,82 @@ resizer = (function(util) {
 }(exp.util));
 
 exp.resizer = resizer;
+})(exp);(function(exp){
+
+var aligner;
+aligner = (function(core, util){
+    var callback;
+    
+    function getZindex ( $ow ) {
+        return $ow
+            .css( "z-index" );
+    }
+
+    function getMaxZindex( formObj ) {
+        var zIndexArray = [],
+            all$ow = core.get$ow( "all" );
+        
+        for ( var i = 0, l = all$ow.length; i < l; i++) {
+            zIndexArray.push( getZindex( all$ow.eq( i ) ) );
+        }
+        
+        return {
+            "max" : Math.max.apply( null, zIndexArray ),
+            "min" : Math.min.apply( null, zIndexArray )
+        }
+    }
+
+    function setZindex( $ow, val, method ) {
+        var current = $ow.css("z-index")-0;
+
+        switch ( method ) {
+            case "assign":
+                $ow.css({ "z-index":  current + val    });
+                break;
+            case "set":
+                $ow.css({ "z-index":  val });
+                break;
+        };
+    }
+            
+    return {               
+        setFocus : function(formId, callback) {                
+            var i, l, $ow_rest, prevZindex, zIndex = {};
+            
+            var focused    = this.focusedFormId,
+                clicked    = formId,
+                $ow        = core.form[formId].get$ow();
+
+            // if selected window's id differs with previous active window...
+            if ( clicked !== focused ) {
+                zIndex      = getMaxZindex.bind(this)( core.form );
+                prevZindex  = getZindex.bind(this)( $ow );
+
+                setZindex.bind(this)( $ow, zIndex.max + 1, "set" );
+
+                for ( var restId in core.form ) {
+                    $ow_rest = core.form[restId-0].get$ow();
+                    
+                    if ( getZindex.bind(this)( $ow_rest ) > prevZindex ) {
+                        setZindex.bind(this)( $ow_rest, -1, "assign" );
+                    }
+                }
+
+                this.focusedFormId = clicked;
+                callback.focusChanged();
+                core.callback.focusChanged();
+
+            } else {
+                this.focusedFormId = clicked;
+                core.callback.focusKeeped();
+            }
+            
+            return    this;
+        }
+    }
+}(exp.core, exp.eutil));
+
+exp.aligner = aligner;
 })(exp);
 (function(exp){
 
@@ -1292,64 +1013,132 @@ selector = (function(core, util){
 
 exp.selector = selector;
 })(exp);
+(function(exp){
 
-﻿(function(exp){
-
-var titleBar;
-titleBar = (function(core, util){
-    function NewTitleBar(form){
-        this.form = form;
-        this.formId = form.formId;
+var manipulator;
+manipulator = (function(core, util){
+    var $cursor,           
+        active      = false, 
+        baseFormId,
+        elemNum,
+        mode;
+    
+    function dragElement_(event) {
+        setCurStatus_(event.ctrlKey);
+        displayCursor_(event.pageX, event.pageY);
     }
 
-    NewTitleBar.prototype = (function () {
-        var titleBar    = "titleBar",
-            removeBtn   = "removeBtn",
-            titleSpace  = "titleSpc";
+    function setCurStatus_(ctrlKey) {
+        var newClass =
+            ctrlKey 
+                ? (core.lb.cursor_copy)
+                : (core.lb.cursor_move);
 
-        function adjustLocation ($bar, tBarHeight) {
-            $bar
-                .css({
-                    "position"    : "absolute",
-                    "width"        : "100%",
-                    "height"    : tBarHeight });
+        if ($cursor != null){
+            $cursor
+                .removeClass(core.lb.cursor_copy)
+                .removeClass(core.lb.cursor_move)
+                .addClass(newClass);
         }
 
-        return {
-            add : function () {                
-                this.$bar = util.createDiv(
-                    this.form.get$ow(),
-                    titleBar,
-                    this.formId
-                );
-                
-                this.$removeBtn = util.createDiv(
-                    this.$bar,
-                    removeBtn,
-                    this.formId
-                );
-                
-                adjustLocation(this.$bar, core.tBarHeight);
+        mode = (ctrlKey) ? "copy" : "move"; 
+    }
 
-                return this.$bar;
-            },
+    function displayCursor_(x, y) {
+        $cursor
+            .css({
+                "top"    : y,
+                "left"    : x
+            })
+            .children()
+            .text(elemNum);
+    }
+
+    function createCursor_() {
+        $("body")
+            .append(
+                "<div " +
+                    "id=\""+
+                        core.pref + core.lb.cursor +
+                    "\" " +
+                    "class=\""+
+                        core.lb.cursor_move +
+                    "\"" +
+                    util.preventSelect() +
+                ">" +
+                    "<div " +
+                        "id=\""+
+                            core.pref + core.lb.cursor_text +
+                        "\"" +
+                        util.preventSelect() +
+                    ">" +
+                    "</div>" +
+                "</div>"
+           );    
             
-            get$titleBar : function ( formId ) {
-                if ( arguments[0] === "all" || arguments.length === 0 ) {
-                    return $( "." + core.pref + titleBar );
-                } else {
-                    return $( "#" + core.pref + formId + "_" + titleBar );
-                }
+        return $("#" + core.pref + core.lb.cursor);
+    }
+
+    function copyElements_($elem, formId) {
+        core.get$ct(formId)
+            .append($elem.clone());
+    }
+
+    function moveElements_($elem, formId) {
+        copyElements_($elem, formId);
+        $elem.remove();
+    }
+    
+    function manipulation_($elem, targetFormId) {
+        if      (mode === "copy")   copyElements_($elem, targetFormId);
+        else if (mode === "move")   moveElements_($elem, targetFormId);    
+    }
+    
+    return {            
+        startDrag : function (event, formId) {
+            baseFormId = formId;
+            elemNum =
+                core.get$elem("selected", true)
+                    .size();
+
+            util.setTrigDelayer(event.pageX, event.pageY, 18, callback);
+            
+            function callback() {
+                $cursor= createCursor_();
+                $(window)
+                    .bind("mousemove", dragElement_);
+                active = true;
             }
+        },
+
+        mouseUp : function (targetFormId, callback) {
+            var $elem = core.get$elem("selected", true);
+
+            if (active) manipulation_($elem, targetFormId);
+            
+            targetFormId = null;
+            active = false;
+            this.removeCursor();
+            
+            return $elem;
+        },
+        
+        isActive : function() {
+            return active;
+        },
+        
+        setCurStatus : function (ctrlKey) {
+            setCurStatus_(ctrlKey);
+        },
+        
+        removeCursor : function () {
+            if (typeof $cursor !== "undefined") $cursor.remove();
         }
-    }());
+    }    
+}(exp.core, exp.util, exp.core.mod));
 
-    return    NewTitleBar;
-}(exp.core, exp.util));
-
-exp.titleBar = titleBar;
+exp.manipulator = manipulator;
 })(exp);
-
 (function(exp){
 
 var titleBar;
@@ -1420,83 +1209,228 @@ titleBar = (function(core, util){
 
 exp.titleBar = titleBar;
 })(exp);
+(function(exp){
 
-﻿(function(exp) {
+var locator;
+locator = (function(core, util){
+    var ehandle;
 
-var util;
-util = (function(core) {
-    var ua = navigator.userAgent;
-    
-    function delayTrigger (event, startX, startY, threshold, removeTrigDelayer, callback) {
-        // calculate torelance range.
-        var outOfRange = (
-            Math.sqrt(
-                Math.pow((event.pageX - startX), 2) +
-                Math.pow((event.pageY - startY), 2) 
-           ) > threshold
-       );
-
-        if (outOfRange) {
-            removeTrigDelayer();
-            callback();
+    function mouseMove ($ow, owWidth, owHeight, wrapWidth, wrapHeight, tBarHeight, relX, relY) {
+        var x, y;
+        
+        // calculate and limit range.
+        if (relX + owWidth > wrapWidth)
+            x = wrapWidth - owWidth;
+        else if (relX < 0)
+            x = 0;
+        else
+            x = relX;   
+        
+        if (relY + owHeight > wrapHeight)
+            y = wrapHeight - owHeight;
+        else if (relY - tBarHeight < 0)
+            y = tBarHeight;
+        else
+            y = relY;   
+        
+        $ow
+            .css({
+                "top"  : y,
+                "left" : x });
+    }  
+                        
+    return {
+        mouseDown : function (absX, absY, $ow, $titleBar) {
+            var op          = $ow.position(),
+                prevAbsLeft = op.left,
+                prevAbsTop  = op.top,
+                divX        = absX - prevAbsLeft, // divasion from handle central axis. 
+                divY        = absY - prevAbsTop,  // divasion from handle central axis.
+                
+                $w          = core.get$wrapper(),
+                wp          = $w.position(),
+                wrapWidth   = $w.innerWidth(),
+                wrapHeight  = $w.innerHeight(),
+                owWidth     = $ow.width(),
+                owHeight    = $ow.height(),
+                tBarHeight  = $titleBar.height();  
+                
+            ehandle = function(event) {
+                //event.stopPropagation();
+                mouseMove(
+                    $ow,                    
+                    owWidth, owHeight,
+                    wrapWidth, wrapHeight,
+                    tBarHeight,
+                    event.pageX - divX + wp.left, event.pageY - divY + wp.top );
+            };
+            
+            $(window)
+                .bind( "mousemove", ehandle );
         }
+    }
+}(exp.core, exp.eutil));
+
+exp.locator = locator;
+})(exp);
+(function(exp){
+
+var eventController;
+eventController = (function(core, util){
+    var handle,
+        $window = $(window),
+        callback,
+        targetFormId,
+        baseFormId;
+    
+    // method
+    function alignment (formId){
+        core.mod.aligner
+            .setFocus(formId, {
+                "focusChanged" : function() { core.unselectAllElem(); }
+            });
+    }
+
+    function mouseDown_elem (event, formId, elemId) {
+        alignment(formId);
+        baseFormId = formId;
+      
+        core.mod.selector
+            .onElem(event.ctrlKey, event.shiftKey, formId, elemId, {
+                downOnSelected  : startDrag,
+                selectWithShift : startDrag,
+                preselectByCtrl : startDrag,
+                preselect       : startDrag
+            });
+
+        function startDrag(){ core.mod.manipulator.startDrag(event, baseFormId); };
+    }
+
+    function mouseDown_content (event, formId, part, elemId) {
+        alignment(formId);
+
+        core.mod.selector
+            .onBack(event.pageX, event.pageY, formId);
+    }
+
+    function mouseDown_titleBar (event, formId) {
+        alignment(formId);
+
+        core.mod.locator
+            .mouseDown(
+                event.pageX, event.pageY, 
+                core.get$ow(formId), core.get$titleBar(formId));
+    }
+
+    function mouseUp_slctPhase (event) {
+        $window
+            .unbind("mousemove");
+        core.mod.selector
+            .mouseUp();
+
+        core.selectPropery();
+    }
+    
+    function mouseUp_termPhase () {
+        core.mod.manipulator.removeCursor();
     }
 
     return {
-        browser : {
-            "chrome"    : (ua.indexOf("Chrome") !== -1),
-            "firefox"   : (ua.indexOf("Firefox")!== -1),
-            "ie"        : (ua.indexOf("MSIE")   !== -1),
-            "opera"     : (ua.indexOf("Opera")  !== -1),
-            "safari"    : (ua.indexOf("safari") !== -1)
-        },
-                
-        preventSelect : function() {
-            return (
-                this.browser.ie || this.browser.firefox
-                    ? "onmousemove=\"window.getSelection().removeAllRanges();\"" 
-                    : ""
-           )
-        },
-        
-        createDiv : function($target, name_, formId) {
-            $target
-                .append(
-                    "<div " +
-                        "class=\""+
-                            core.pref + name_ + " " +
-                            core.pref + core.lb.form + "_" + formId +
-                        "\" " +
-                        this.preventSelect() +
-                    ">" +
-                    "</div>"   );
-            
-            return $("." + core.pref + core.lb.form + "_" + formId)
-                    .filter("." + core.pref + name_)
+        set : function(args){
+            callback = args. callback || function(){};
+            return this;
         },
             
-        setTrigDelayer : function (startX, startY, torelance, callback) {
-            this.mouseMove_delayer = function (event) {
-                delayTrigger(
-                    event,
-                    startX, startY,
-                    torelance,
-                    this.removeTrigDelayer,
-                    callback
-               );
-            };
-            $(window).bind("mousemove", this.mouseMove_delayer.bind(this));
-        },
+        initialize : function() {
+            var self = this;
+            targetFormId = null;
+            
+            handle = handle || {
+                mouseDown_elem : function(event) {
+                    var p = core.parse($(this));
 
-        removeTrigDelayer : function (event) {
-            $(window).unbind("mousemove");
+                    event.stopPropagation();
+                    mouseDown_elem(event, p.formId, p.elemId);
+                },
+
+                mouseDown_content : function(event) {
+                    var p = core.parse($(this));
+
+                    event.stopPropagation();
+                    mouseDown_content(event, p.formId, p.part, p.elemId);
+                },
+
+                mouseDown_titleBar : function(event) {
+                    var p = core.parse($(this));
+
+                    event.stopPropagation();
+                    mouseDown_titleBar(event, p.formId);
+                },
+                    
+                mouseUp : function(event) {
+                    event.stopPropagation();
+
+                    mouseUp_slctPhase(event);
+
+                    if (core.mod.manipulator.isActive()) {
+                        // wait to acquire targetFormId ------
+                        var timer = setInterval(function() {
+                        if (targetFormId !== null) { clearInterval(timer); 
+                        // -----------------------------------
+                        core.mod.manipulator.mouseUp(targetFormId);
+                        mouseUp_termPhase(event);
+                        callback();
+                     //   self.initialize();
+                        // logic ends-------------------------
+                        }}, 1);
+                        // -----------------------------------
+                    } else {
+                        mouseUp_termPhase(event);
+                    }
+                },
+
+                mouseUp_content : function(event) {
+                     targetFormId = core.parse($(this)).formId;
+                },
+
+                keyDown : function(event) {
+                    core.mod.manipulator.setCurStatus(event.ctrlKey);
+                },
+
+                keyUp : function(event) {
+                    core.mod.manipulator.setCurStatus(event.ctrlKey);
+                }
+            };
+            
+            core.get$elem("all")
+                .unbind  ("mousedown")
+                .bind    ("mousedown", handle.mouseDown_elem);
+
+            core.get$ct("all")
+                .unbind  ("mousedown")
+                .bind    ("mousedown", handle.mouseDown_content)
+                
+                .unbind  ("mouseup")
+                .bind    ("mouseup",   handle.mouseUp_content);
+
+            core.get$titleBar("all")
+                .unbind  ("mousedown")
+                .bind    ("mousedown", handle.mouseDown_titleBar);
+
+            $window
+                .unbind  ("mouseup")
+                .bind    ("mouseup",   handle.mouseUp);
+
+            document.removeEventListener("keydown",    handle.keyDown, false);
+            document.addEventListener   ("keydown",    handle.keyDown, false);
+            document.removeEventListener("keyup",      handle.keyDown, false);
+            document.addEventListener   ("keyup",      handle.keyDown, false);
         }
     }
-}(exp.core));
+}(exp.core, exp.util));
 
-exp.util = util;
+exp.eventController = eventController;
 })(exp);
-
 ﻿(function(exp) {
     
 var windowForm;
@@ -1607,7 +1541,10 @@ windowForm = (function(core, util) {
                         "leftGap"       : 5,
                         "zIndex"        : 3,
                         "angleHandleSize": 25,
-                        "maxY" :  600 ,
+                        "maxX"          : core.maxWidth,
+                        "maxY"          : core.maxHeight,
+                        "minX"          : core.minWidth,
+                        "minY"          : core.minHeight,
                         "start"         : function() {
                             resetCtSize(this.$ct);
                             core.mod.aligner
@@ -1724,7 +1661,6 @@ windowForm = (function(core, util) {
 
 exp.windowForm = windowForm;    
 })(exp);
-
 
 window.hdemon = window.hdemon || {};
 window.hdemon.explorizer = exp.core;
