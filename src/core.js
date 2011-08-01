@@ -146,12 +146,11 @@ core = (function() {
                 
                 return $oldElem;
             } else {             
-                var $oldElem, newForm;
+                var $oldElem, $newContent, newForm;
                 
                 $oldElem = $content.clone(true, true);
                 $oldElem.children().remove();
                 $oldElem.appendTo(this.$secretRepo);
-   console.log($oldElem);                 
                                                  
                 newForm = this.add(),
                 $newContent = newForm.$content;
@@ -274,8 +273,7 @@ core = (function() {
             if(typeof funcObj[ handleName ] !== "undefined") {
                 return funcObj[ handleName ].apply(this, argsArray);
             }
-        },
-
+        }
     }
 
 }());
