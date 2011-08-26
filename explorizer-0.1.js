@@ -1596,8 +1596,8 @@ windowForm = (function(core, util) {
             elem    = "elem";
             
         function adjustSize ($ct, $ow, height, width) {
-            var x    = $ct.offset().left,
-                y    = $ct.offset().top,
+            var x    = $ct.position().left,
+                y    = $ct.position().top,
                 h    = height   || $ct.outerHeight(),
                 w    = width    || $ct.outerWidth();
          
@@ -1612,7 +1612,7 @@ windowForm = (function(core, util) {
             // Set the same location and size as the content element before altering.
             // The outer wrapper works indicator for location and size.
             $ow.css({
-                "top"       : y,
+                "top"       : y, // タイトルバーの分だけ差し引く処理が必要
                 "left"      : x,
                 "height"    : h,
                 "width"     : w
