@@ -1,16 +1,9 @@
 #! /bin/bash
 
-rm explorizer.js
+rm explorizer-[0-9.]*.js
+version=$(head -n 1 version)
 
 cd src
-
-#for file in `ls *.js`
-#do
-#echo $file
-#	cat $file >> core
-#	echo $'\r' >> core
-#done
-
 
 cat core.js         >> code
 cat util.js         >> code
@@ -23,8 +16,7 @@ cat locator.js      >> code
 cat evtcontroller.js>> code
 cat wform.js        >> code
 
-cat intro code outro >> ../explorizer.js
-
+cat intro code outro >> ../explorizer-${version}.js
 rm code
 
 cd ..

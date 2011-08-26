@@ -1,18 +1,39 @@
+/** 
+ * @fileOverview A module for manipulation.
+ * 	
+ * @author Masami Yonehara
+ * @version 0.1
+ */
+
 (function(exp){
 
 var manipulator;
+/**
+ * A module for manipulation.
+ * @namespace		
+ */
 manipulator = (function(core, util){
+    /** @private */
     var $cursor,           
         active      = false, 
         baseFormId,
         elemNum,
         mode;
     
+    /**
+     * ドラッグ処理をまとめる。
+     * @private
+     * @param event
+     */
     function dragElement_(event) {
         setCurStatus_(event.ctrlKey);
         displayCursor_(event.pageX, event.pageY);
     }
-
+    
+    /**
+     * ctrlの押下状態に応じて、カーソルのCSSと状態を示す変数を変化させる。
+     * @param ctrlKey
+     */
     function setCurStatus_(ctrlKey) {
         var newClass =
             ctrlKey 
@@ -28,7 +49,12 @@ manipulator = (function(core, util){
 
         mode = (ctrlKey) ? "copy" : "move"; 
     }
-
+    
+    /**
+     * カーソルと内部のエレメント数の表示を更新する。
+     * @param x
+     * @param y
+     */
     function displayCursor_(x, y) {
         $cursor
             .css({
@@ -39,6 +65,10 @@ manipulator = (function(core, util){
             .text(elemNum);
     }
 
+    /**
+     * カーソルを描画するdiv要素を、body要素に作成する。
+     * @returns {$object} カーソルを示すjQueryオブジェクト
+     */
     function createCursor_() {
         $("body")
             .append(
@@ -64,22 +94,41 @@ manipulator = (function(core, util){
         return $("#" + core.pref + core.lb.cursor);
     }
 
+    /**
+     * エレメントをコピーする。
+     * @param $elem
+     * @param formId
+     */
     function copyElements_($elem, formId) {
         core.get$ct(formId)
             .append($elem.clone());
     }
 
+    /**
+     * エレメントを移動する。
+     * @param $elem
+     * @param formId
+     */
     function moveElements_($elem, formId) {
         copyElements_($elem, formId);
         $elem.remove();
     }
     
+    /**
+     * ドラッグ後マウスを話した際、どの処理を行うかを判定する。
+     * @param $elem
+     * @param targetFormId
+     */
     function manipulation_($elem, targetFormId) {
         if      (mode === "copy")   copyElements_($elem, targetFormId);
         else if (mode === "move")   moveElements_($elem, targetFormId);    
     }
     
-    return {            
+    return {
+        /**
+         * @param event
+         * @param formId
+         */
         startDrag : function (event, formId) {
             baseFormId = formId;
             elemNum =
@@ -96,6 +145,12 @@ manipulator = (function(core, util){
             }
         },
 
+        /**
+         * マウスを上げた時、つまりエレメントをドロップした時の処理。
+         * イベント判定および事前処理は、evtcontrollerで行う。
+         * @param targetFormId
+         * @param callback
+         */
         mouseUp : function (targetFormId, callback) {
             var $elem = core.get$elem("selected", true);
 
@@ -108,14 +163,25 @@ manipulator = (function(core, util){
             return $elem;
         },
         
+        /**
+         * 
+         */
         isActive : function() {
             return active;
         },
         
+        /**
+         * ctrlの押下状態プロパティを更新する。
+         * これもmanipulatorモジュール内ではなく、イベント判定のある
+         * evtcontrollerから呼び出される。
+         */
         setCurStatus : function (ctrlKey) {
             setCurStatus_(ctrlKey);
         },
         
+        /**
+         * カーソルを削除する。内部プロパティは変更しない。
+         */
         removeCursor : function () {
             if (typeof $cursor !== "undefined") $cursor.remove();
         }

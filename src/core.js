@@ -1,5 +1,9 @@
-﻿(function(exp) {
+﻿
+(function(exp) {
 
+/**
+ * @type
+ */
 var core;
 core = (function() {
     function init_ () {
