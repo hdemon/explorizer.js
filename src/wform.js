@@ -101,6 +101,7 @@ windowForm = (function(core, util) {
                 
                 this.mod.resizer
                     .set({
+                        "wrapper"       : core.get$wrapper(),
                         "clsName"       : core.pref + core.lb.resize,
                         "id"            : this.formId,
                         "topGap"        : -25,        // for title bar's height
@@ -132,8 +133,7 @@ windowForm = (function(core, util) {
                         "end"           : function() {
                             fitCtSize(this.$ct, this.$iw)
                             core.callback.resizingEnded();                            
-                        }.bind(this),
-                        "wrapper"       : $("#wrapper")    })
+                        }.bind(this)   })
                     .add(this.$ow);
 
                 var $bar = this.mod.titleBar
