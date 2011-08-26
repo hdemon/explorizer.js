@@ -4,7 +4,12 @@ var locator;
 locator = (function(core, util){
     var ehandle;
 
-    function mouseMove ($ow, owWidth, owHeight, wrapWidth, wrapHeight, tBarHeight, relX, relY) {
+    function mouseMove(
+        $ow, 
+        owWidth, owHeight, 
+        wrapWidth, wrapHeight, tBarHeight, 
+        relX, relY, wp
+    ){
         var x, y;
         
         // calculate and limit range.
@@ -22,6 +27,8 @@ locator = (function(core, util){
         else
             y = relY;   
         
+        // この時点で、xとyは絶対座標である。
+        
         $ow
             .css({
                 "top"  : y,
@@ -30,14 +37,12 @@ locator = (function(core, util){
                         
     return {
         mouseDown : function (absX, absY, $ow, $titleBar) {
-            var op          = $ow.position(),
-                prevAbsLeft = op.left,
-                prevAbsTop  = op.top,
-                divX        = absX - prevAbsLeft, // divasion from handle central axis. 
-                divY        = absY - prevAbsTop,  // divasion from handle central axis.
+            var op          = $ow.offset(),
+                divX        = absX - op.left, // divasion from handle central axis. 
+                divY        = absY - op.top,  // divasion from handle central axis.
                 
                 $w          = core.get$wrapper(),
-                wp          = $w.position(),
+                wp          = $w.offset(),
                 wrapWidth   = $w.innerWidth(),
                 wrapHeight  = $w.innerHeight(),
                 owWidth     = $ow.width(),
@@ -46,12 +51,17 @@ locator = (function(core, util){
                 
             ehandle = function(event) {
                 //event.stopPropagation();
+                var relX        = event.pageX - divX - wp.left,
+                    relY        = event.pageY - divY - wp.top;
+                
                 mouseMove(
                     $ow,                    
                     owWidth, owHeight,
                     wrapWidth, wrapHeight,
                     tBarHeight,
-                    event.pageX - divX + wp.left, event.pageY - divY + wp.top );
+                    relX, relY,
+                    wp
+                );
             };
             
             $(window)
