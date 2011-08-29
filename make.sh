@@ -1,7 +1,6 @@
 #! /bin/bash
 
-rm explorizer-[0-9.]*.js
-version=$(head -n 1 version)
+rm explorizer.js
 
 cd src
 
@@ -16,7 +15,7 @@ cat locator.js      >> code
 cat evtcontroller.js>> code
 cat wform.js        >> code
 
-cat intro code outro >> ../explorizer-${version}.js
+cat intro code outro >> ../explorizer.js
 rm code
 
 cd ..

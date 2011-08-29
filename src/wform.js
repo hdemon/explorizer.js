@@ -40,7 +40,7 @@ windowForm = (function(core, util) {
             // Set the same location and size as the content element before altering.
             // The outer wrapper works indicator for location and size.
             $ow.css({
-                "top"       : y, // タイトルバーの分だけ差し引く処理が必要
+                "top"       : y + core.tBarHeight, // タイトルバーの分だけ差し引く処理が必要
                 "left"      : x,
                 "height"    : h,
                 "width"     : w

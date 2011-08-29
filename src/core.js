@@ -265,7 +265,6 @@ core = (function() {
         },
 
         isSelect : function(formId, elemId, includePreslct) {
-            includePre = true;
             return (
                 this.get$elem(formId, elemId)
                     .is( "."+this.lb.selected + ((includePreslct) ? ", ."+this.lb.preselect : "") )
