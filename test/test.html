@@ -2,8 +2,38 @@
 <html>
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=IE9">
-		<link href="../src/explorize.css"
+		<link href="../src/explorizer.css"
 		rel="stylesheet" type="text/css"/>
+        <style type="text/css">
+            #wrapper {
+                position:       absolute;
+                width:          800px;
+                height:         800px;
+                margin:         50px;
+                background: #F8F6F6;
+                box-shadow: #666 0px 3px 8px;
+            }
+            
+            .hdex_elem {
+                float:          left;
+                width:          64px;
+                height:         64px;
+                margin:         15px 0 0 15px;
+                border:         #eee solid;
+                border-radius:  15px;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+            }
+
+            .hdex_elem p {
+                margin:         5px;
+                font-weight:    bold;
+                color:          #fff;
+            }
+
+        </style>
 	</head>
 
 	<body>
@@ -33,53 +63,30 @@
 "use strict";
 hdemon.explorizer = exp.core;
 
-
 var	id = 0,
 	$wrapper = $("#wrapper"),
-	explorizer,
 	$form = [];
 
-$form[ id ] =
-	hdemon.explorizer
-		.set({  // parameters setting. Only "$wrapper" is required.
-			"$wrapper"	: $wrapper	})
-		.add() // new window-form creation.
-        .$content;
+hdemon.explorizer
+	.set({  // parameters setting. Only "$wrapper" is required.
+		"$wrapper"	: $wrapper	})
+          
+for (id = 0; id <= 2; id++){  
+    $form[ id ] =
+    	hdemon.explorizer
+    		.add() // new window-form creation.
+            .$content;
+}
 		
-createBox($form[ id ], 10, 5, 100, 240);
+createBox($form[0], 10, 5, 100, 240);
+createBox($form[1], 15, 2, 100, 240);
+createBox($form[2], 15, 3, 100, 240);
+
 // When you manipulate DOM object in explorizer-form,
 // you must call "initialize" method explicitly for resetting events trigger. 
 hdemon.explorizer.initialize();
-id++;
-
-$form[ id ] =
-	hdemon.explorizer
-        .add()
-        .$content;
-    
-createBox( $form[ id ], 15, 2, 100, 240);
-hdemon.explorizer.initialize();
-id++;
 
 
-
-createBox( $("#a"), 15, 3, 100, 240);
-
-$form[ id ] =
-	hdemon.explorizer
-		.convert($("#a")) // new window-form creation.
-        .$content;
-hdemon.explorizer.initialize();
-
-hdemon.explorizer
-    .convert($form[ id ]) // new window-form creation.
-hdemon.explorizer.initialize();
-      
-$form[ id ] =
-	hdemon.explorizer
-		.convert($("#a")) // new window-form creation.
-hdemon.explorizer.initialize();  
-            
 // グラデーション付き要素作成
 // 以下の記事を参考にさせて頂きました。
 // http://www13.plala.or.jp/kymats/study/gazou/HSB/HSB.html
