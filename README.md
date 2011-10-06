@@ -1,68 +1,117 @@
-﻿##Dependency
+WindowsのExplorerを始めとする各種ファイル操作GUIのように、
 
-It requires jQuery v1.2.6 and greater.
++ フォームのサイズ変更、移動
++ サイズの上限、下限、範囲設定
++ 重なりの切り替え
++ クリック、ドラッグ、ShiftとCtrlを使った要素の選択
++ フォーム間の要素の移動／コピー
++ ドラッグによる要素選択時の、自動スクロール機能
 
-##Basic usage
-~~~~
-...
-<div id="wrapper"></div>
-...
-hdemon.explorizer
-    .set({
-        'wrapper' : $('#wrapper')
-    })
-    .add();
-~~~~
-+ Markup the wrapper element.
-+ Call 'set' method from 'hdemon.explorizer' with 'wrapper' arguments.
-+ Call 'add' method.
+を実現します。
 
-##Methods
+##使用方法
 
-###set
-####$wrapper
- It is only required parameters to execute explorizer. It limits window form's moving and resizing range. 
-####autoScroll
-int | false
- Normally in using a browser without auto-scrolling function such as IE, Firefox or Opera. Explorizer activate auto-scroll function with no user intervention.
- If you use other browser and that function is ineffective, pass 'true' to this parameter 
-####scrollWeight 
- Speed of auto-scrolling.
-####width         
-####height        
- Initial size of the window form.
+###下準備
 
-####minWidth      
-####minHeight     
-####maxWidth      
-####maxHeight     
- Size limitation of resizing the window form.
+ラッパーとなるブロック要素を用意し、CSSで以下の設定をして下さい。
 
-####tBarHeight
- A title bar's height.
+    // #wrapper = 任意のブロック要素
+    #wrapper {
+        position: relative もしくは absolute;
+    }
+     
+    #wrapper * {
+        -webkit-user-select:none;
+        -khtml-user-select: none;
+        -moz-user-select:   none;
+        user-select:        none;
+    }
 
-###add
- Create a new window form. It requires no parameter.
- 
-###convert
- Convert an existing block element to the window form that is same as product of 'add' method.
+positionをrelativeかabsoluteにするのは、フォームの位置計算方法を統一するためです。それ以外の場合は表示が狂います。また、それ以降の項目は、テキスト選択機能を無効にしドラッグによる選択時の誤作動を防ぐものです。ちらつきを最小限に抑えつつ誤作動も防ぐには、body内の全ての要素を原則選択禁止にした上で、選択を可能にしたい要素のみ個別に許可する方式が最も望ましいです。1
 
-###callback
- Explorizer provides callbacks of each operation.
-####manipulated     
- It will be fired when mouse-up after dragging elements to another window-form. And pass the following paramater.
- {
-    'baseFormId'    : formId of the source window form that includes dragging elements
-    'targetFormId'  : formId of the destination window form    
-    'element'       : [ (elementId of manipulated element), ... ]
- }
-####selected        
-####formRemoved     
-####formAdded       
-####onElement       
-####focusChanged    
-####focusKeeped     
-####resizingStart   
-####resizing        
-####resizingEnded   
-####};
+###スクリプト上の手順
+
+- パラメータ設定
+- フォーム作成
+- 初期化処理
+
+の3手順を踏む必要があります。具体的には、
+
+
+    (function(hdemon){
+     
+    // グローバルに名前空間"hdemon"が置かれる。
+    // そこから、explorizerメソッドを呼び出す。
+    form = hdemon.explorizer
+     
+        // パラメータ設定。フォームのラッパー要素指定である"$wrapper"が、唯一必須。
+        // $wrapperには、jQueryオブジェクトを与える。
+        .set({
+            "$wrapper"     : $("#wrapper")
+            "width"        : 200,
+            "height"       : 300    })
+     
+        // addメソッドで、パラメータに従ったフォームを作成。
+        .add() // new window-form creation.
+     
+    // addの戻り値は、
+    {
+        "$form"    // フォームの一番外側の要素で、座標を決める。
+        "$content" // フォームの最も内側の要素で、ここに好きな要素を追加することができる。
+        "formId"   // ユニークで不変のフォームID
+    }
+     
+    // であり、次のように使う。
+    form.$content
+        .append(/*任意の要素。文章とかアイコンとか。*/)
+        .css({ "top" : 200 , "left" : 300 });
+     
+    // そして、フォーム内に要素を追加／削除した場合には、
+    // 次のように明示的に初期化処理を行う必要がある。
+    // 初期化処理後、フォーム内の要素は選択／移動・コピー対象になる。
+    hdemon.explorizer.initialize();
+     
+    }(window.hdemon));
+
+のように行います。
+
+※現在のところ、選択機能、移動・コピー機能は備わっていますが、それらを行った後のコールバックができておらず、任意の処理に繋げることができません。
+
+###メソッドおよび引数
+
+
+    // 必須のパラメータ
+    $wrapper      : jQueryオブジェクト // フォームのサイズ変更および移動範囲を限定するラッパー要素。
+                                      // jQueryオブジェクトを指定。
+     
+    // 任意のパラメータ
+    autoScroll    : int // ドラッグ選択時に、強制的にオートスクロールを有効にするか。
+                        // 一般的なブラウザでは、この指定に関わらず有効になる。
+    scrollWeight  : int // ドラッグ選択時のオートスクロール量
+     
+    width         : int // 横幅
+    height        : int // 縦幅
+    minWidth      : int // 最小の横幅
+    minHeight     : int // 最小の縦幅
+    maxWidth      : int // 最小の横幅
+    maxHeight     : int // 最小の縦幅
+    tBarHeight    : int // タイトルバーの高さ
+    removeBtn     : boolean // 「閉じる」ボタンの有無　※未実装
+     
+    statusBar     : boolean // ステータスバーの有無　※未実装
+    sBarHeight    : int // ステータスバーの高さ　※未実装
+     
+    // ※以下はすべて未実装。
+    callback = {
+        manipulated      : handler // 移動・コピー後
+        selected         : handler // 選択後
+        formRemoved      : handler // フォーム削除後
+        formAdded        : handler // フォーム追加後
+        onElement        : handler //
+        focusChanged     : handler // 特定のフォームをクリックし、フォームの重なりを変化させた後
+        focusKeeped      : handler // 特定のフォームをクリックしたが、すでに最前面だった時
+        resizingStart    : handler // リサイズ開始時
+        resizing         : handler // リサイズ中
+        resizingEnded    : handler // リサイズ終了、マウスボタンを離した時。
+    }
+
